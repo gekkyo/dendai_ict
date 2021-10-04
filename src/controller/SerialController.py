@@ -17,12 +17,8 @@ from src.util.SetInterval import SetInterval
 
 class SerialController:
     
-    # 初期化
     def __init__(self) -> None:
-        """
-        コンストラクタ
-        """
-        
+        """コンストラクタ"""
         logging.info("init")
         
         self.interval: typing.Optional[SetInterval] = None
@@ -33,10 +29,13 @@ class SerialController:
         self.getAvailablePorts()
     
     def initialize(self) -> None:
+        """初期化"""
+        logging.info("initialize")
+
         self.startTime = None
     
-    # 使用可能なポート一覧取得
     def getAvailablePorts(self) -> None:
+        """使用可能なポート一覧取得"""
         logging.info("getAvailablePorts")
         
         curPorts: list[str] = []
@@ -48,8 +47,11 @@ class SerialController:
         
         self.ports = curPorts
     
-    # シリアルポート用意
     def openSerial(self) -> bool:
+        """シリアルポート用意
+        Returns:
+            bool: シリアルポート開放できたか
+        """
         logging.info("openSerial")
         
         try:
@@ -68,9 +70,10 @@ class SerialController:
             logging.error(e)
             return False
     
-    # 読み込み開始
     def start(self) -> None:
+        """読み込み開始"""
         logging.info("start")
+        
         try:
             self.openSerial()
         except SerialException as e:
@@ -82,8 +85,8 @@ class SerialController:
             self.interval = SetInterval(Global.getSerialInterval, self.thread_task)
         pass
     
-    # データ処理
     def thread_task(self) -> None:
+        """データ処理"""
         
         # 読み込み可能なら
         if self.serial is not None and self.serial.readable():
@@ -149,9 +152,10 @@ class SerialController:
                     # データ更新
                     Model.serialData.update(sample)
     
-    # 読み込み終了
     def stop(self) -> None:
+        """読み込み終了"""
         logging.info("stop")
+        
         if self.interval is not None:
             self.interval.cancel()
         self.startTime = None

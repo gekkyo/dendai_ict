@@ -3,29 +3,49 @@ import logging
 
 import PySimpleGUI as sg
 import matplotlib
+from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 from src.util import Global
 
-matplotlib.use('Agg')
-from matplotlib import pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-plt.rcParams["font.size"] = 8
-plt.rcParams["axes.linewidth"] = 0.5
-plt.rcParams["xtick.minor.visible"] = True  # x軸補助目盛りの追加
-plt.rcParams["ytick.minor.visible"] = True  # y軸補助目盛りの追加
-plt.rcParams["xtick.major.width"] = 0.2  # x軸主目盛り線の線幅
-plt.rcParams["ytick.major.width"] = 0.2  # y軸主目盛り線の線幅
-plt.rcParams["xtick.minor.width"] = 0.2  # x軸補助目盛り線の線幅
-plt.rcParams["ytick.minor.width"] = 0.2
-# plt.rcParams["figure.autolayout"] = True
-plt.switch_backend('Agg')
-plt.ion()
+def init() -> None:
+    """matplotlib初期化"""
+    logging.info("init")
+    
+    # グラフを表示させない
+    matplotlib.use('Agg')
+    
+    # グラフの初期設定
+    plt.rcParams["font.size"] = 8
+    plt.rcParams["axes.linewidth"] = 0.5
+    plt.rcParams["xtick.minor.visible"] = True  # x軸補助目盛りの追加
+    plt.rcParams["ytick.minor.visible"] = True  # y軸補助目盛りの追加
+    plt.rcParams["xtick.major.width"] = 0.2  # x軸主目盛り線の線幅
+    plt.rcParams["ytick.major.width"] = 0.2  # y軸主目盛り線の線幅
+    plt.rcParams["xtick.minor.width"] = 0.2  # x軸補助目盛り線の線幅
+    plt.rcParams["ytick.minor.width"] = 0.2
+    # plt.rcParams["figure.autolayout"] = True
+    
+    # plotを表示させない
+    plt.switch_backend('Agg')
+    # インタラクティブモード
+    plt.ion()
 
 
 def init_graph(figsize: tuple, target: sg.Canvas) -> Axes:
+    """グラフを作成する
+    Args:
+        figsize(float,float): グラフサイズ
+        target(sg.Canvas): ターゲットのキャンバス
+
+    Returns:
+        Axes:グラフのAxes
+    """
+    logging.info("init_graph")
+    
     # 埋め込む用のfigを作成する．
     fig: Figure = plt.figure(figsize = figsize)
     ax: Axes = fig.add_subplot(111)
@@ -40,8 +60,18 @@ def init_graph(figsize: tuple, target: sg.Canvas) -> Axes:
     return ax
 
 
-# 描画用の関数
 def draw_fig(cv: sg.Canvas.TKCanvas, fig: Figure) -> FigureCanvasTkAgg:
+    """描画関数
+
+    Args:
+        cv(sg.Canvas.TKCanvas): ターゲットのキャンバス
+        fig(Figure): 描画するFigure
+
+    Returns:
+        FigureCanvasTkAgg: tkwidget
+    """
+    logging.info("draw_fig")
+    
     figure_canvas_agg = FigureCanvasTkAgg(fig, cv)
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side = 'top', fill = 'both', expand = 1)
@@ -49,12 +79,16 @@ def draw_fig(cv: sg.Canvas.TKCanvas, fig: Figure) -> FigureCanvasTkAgg:
 
 
 def stopAllGraph() -> None:
+    """すべてのグラフを止める"""
     logging.info("stopAllGraph")
+
     for graph in Global.graphArray:
         graph.stop()
 
 
 def initAllGraph() -> None:
+    """すべてのグラフ初期化"""
     logging.info("initAllGraph")
+    
     for graph in Global.graphArray:
         graph.initGraph()

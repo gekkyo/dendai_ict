@@ -11,6 +11,10 @@ from src.util import GraphUtil, Global
 class RawGraph(BaseGraph):
     
     def __init__(self, partsname: str) -> None:
+        """コンストラクタ
+        Args:
+            partsname (str): guiのID
+        """
         logging.info("init")
         
         super().__init__()
@@ -28,12 +32,17 @@ class RawGraph(BaseGraph):
         pass
     
     def initGraph(self) -> None:
+        """グラフ初期化"""
+        logging.info("init_garph")
+        
         self.ax.set_ylim(0, 1000)
         self.ax.set_xlim(0, 10)
         self.line.set_data([], [])
         self.scatter.set_offsets([[0, 0]])
     
     def update(self) -> None:
+        """データ処理"""
+        
         data = Model.serialData
         
         # データが有れば
@@ -58,15 +67,15 @@ class RawGraph(BaseGraph):
                 self.scatter.set_offsets(peaks_pos)
     
     def start(self) -> None:
+        """スレッド開始する"""
         logging.info("start")
         
-        self.ax.set_ylim(0, 1000)
-        self.ax.set_xlim(0, 10)
-        self.line.set_data([], [])
+        self.initGraph()
         
         super().start()
     
     def stop(self) -> None:
+        """スレッド終了する"""
         logging.info("stop")
         
         super().stop()

@@ -12,6 +12,10 @@ from src.util import Global, GraphUtil, SignalUtil
 class HeartBeatGraph(BaseGraph):
     
     def __init__(self, partsname: str) -> None:
+        """コンストラクタ
+        Args:
+            partsname (str): guiのID
+        """
         logging.info("init")
         
         super().__init__()
@@ -28,12 +32,17 @@ class HeartBeatGraph(BaseGraph):
         pass
     
     def initGraph(self) -> None:
+        """グラフ初期化"""
+        logging.info("init_garph")
+        
         self.ax.set_ylim(0, 1000)
         self.ax.set_xlim(0, 10)
         self.line.set_data([], [])
         self.prevTime = None
     
     def update(self) -> None:
+        """データ処理"""
+
         data = Model.serialData.query("is_peak == 1")
         data = data.tail(30 * Global.sensorPerSecond).copy()
         
@@ -85,17 +94,17 @@ class HeartBeatGraph(BaseGraph):
                 Model.serialData = Model.serialData.tail(Global.maxKeepSensorLength)
             
             # self.prevTime = data.at[-1, "time"]
-    
+
     def start(self) -> None:
+        """スレッド開始する"""
         logging.info("start")
-        
-        self.ax.set_ylim(0, 1000)
-        self.ax.set_xlim(0, 10)
-        self.line.set_data([], [])
-        
-        super().start()
     
+        self.initGraph()
+    
+        super().start()
+
     def stop(self) -> None:
+        """スレッド終了する"""
         logging.info("stop")
-        
+    
         super().stop()

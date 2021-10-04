@@ -9,14 +9,12 @@ from colorama import (
 
 from src.controller.AppController import AppController
 from src.controller.SerialController import SerialController
-from src.util import Global
+from src.util import Global, GraphUtil
 from src.view.AppView import AppView
 
 
 def main() -> None:
-    """
-    メイン関数
-    """
+    """メイン関数"""
     
     colorizer = GenericColorizer(color_map = {
             'info': (Fore.GREEN, Style.RESET_ALL)
@@ -24,6 +22,9 @@ def main() -> None:
     chromalog.basicConfig(level = logging.INFO, colorizer = colorizer, format = '%(asctime)s.%(msecs)03d : %(levelname)s - %(filename)s - %(message)s', datefmt = "%H:%M:%S")
     # logging.basicConfig(level = logging.INFO)
     logging.info('main')
+    
+    # matplotlib初期化
+    GraphUtil.init()
     
     # シリアル通信
     serialController = SerialController()

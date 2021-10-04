@@ -16,10 +16,7 @@ from src.view.Style import *
 class AppView:
     
     def __init__(self) -> None:
-        """
-        コンストラクタ
-        """
-        
+        """コンストラクタ"""
         logging.info("init")
         
         # メインウインドウ
@@ -111,10 +108,7 @@ class AppView:
                         sg.Column(rightRaw, **column_right)]]
     
     def show_window(self) -> None:
-        """
-        ウインドウを表示
-        """
-        
+        """ウインドウを表示"""
         logging.info("show_window")
         
         self.window = sg.Window(title = '嘘発見アプリ', layout = self.layout, **window_style)
@@ -127,10 +121,7 @@ class AppView:
         self.updatePortSelection()
     
     def updatePortSelection(self) -> None:
-        """
-        シリアルポート情報を更新する
-        """
-        
+        """シリアルポート情報を更新する"""
         logging.info("updatePortSelection")
         
         Global.serialController.getAvailablePorts()
@@ -159,12 +150,9 @@ class AppView:
             self.window["port_select"].update(value = value)
     
     def close_window(self) -> None:
-        """
-        ウインドウを閉じてアプリ終了
-        """
-        
+        """ウインドウを閉じてアプリ終了"""
         logging.info("close_window")
-        
+
         # グラフ処理止める
         GraphUtil.stopAllGraph()
         plt.close("all")

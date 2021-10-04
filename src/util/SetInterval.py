@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 from typing import Any
@@ -6,12 +7,12 @@ from typing import Any
 class SetInterval:
     
     def __init__(self, interval: float, action: Any) -> None:
-        """
-        コンストラクタ
+        """コンストラクタ
         Args:
             interval (float): 呼び出し間隔
             action (Any): 呼ぶ出す関数
         """
+        logging.info("init")
         
         self.interval = interval
         self.action = action
@@ -20,9 +21,7 @@ class SetInterval:
         thread.start()
     
     def __setInterval(self) -> None:
-        """
-        スレッド処理
-        """
+        """スレッド処理"""
         
         nextTime = time.time() + self.interval
         while not self.stopEvent.wait(nextTime - time.time()):
@@ -32,8 +31,7 @@ class SetInterval:
             t.start()
     
     def cancel(self) -> None:
-        """
-        スレッドを止める
-        """
-        
+        """スレッドを止める"""
+        logging.info("cancel")
+
         self.stopEvent.set()

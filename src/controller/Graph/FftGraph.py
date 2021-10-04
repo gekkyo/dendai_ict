@@ -9,9 +9,7 @@ from src.util import Global, GraphUtil
 class FftGraph(BaseGraph):
     
     def __init__(self, partsname: str) -> None:
-        """
-        コンストラクタ
-        
+        """コンストラクタ
         Args:
             partsname (str): guiのID
         """
@@ -32,6 +30,9 @@ class FftGraph(BaseGraph):
         pass
     
     def initGraph(self)->None:
+        """グラフ初期化"""
+        logging.info("init_garph")
+        
         self.ax.set_ylim(0, 1000)
         self.ax.set_xlim(0, 10)
         self.baseline.set_data([], [])

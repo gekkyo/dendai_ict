@@ -13,15 +13,17 @@ from src.util import Global, GraphUtil
 class AppController:
     
     def __init__(self) -> None:
-        """
-        コンストラクタ
-        """
+        """コンストラクタ"""
+        logging.info("init")
         
         self.values: Any = None
-        logging.info("init")
-        pass
     
     def handle(self, event_key: str, values: Any) -> None:
+        """イベントごとに呼ばれる
+        Args:
+            event_key(str): イベントが起きたパーツのID
+            values(Any): イベントでの値
+        """
         logging.info("AppController:handle")
         logging.info(event_key)
         
@@ -33,10 +35,13 @@ class AppController:
             pass
     
     def btn_reflesh(self) -> None:
+        """ポートリロードボタン"""
+        logging.info("btn_reflesh")
+
         Global.appView.updatePortSelection()
-        pass
     
     def btn_connect(self) -> None:
+        """接続ボタン"""
         logging.info("btn_connect")
         
         if Global.serialController.openSerial():
@@ -53,6 +58,7 @@ class AppController:
             Global.graph_hb.start()
     
     def btn_base_start(self) -> None:
+        """ベース計測開始ボタン"""
         logging.info("btn_base_start")
         
         Global.appView.window["btn_base_start"].update(disabled = True)
@@ -61,6 +67,7 @@ class AppController:
         Global.baseStartTime = Model.serialData.time.values[-1]
     
     def btn_base_stop(self) -> None:
+        """ベース計測停止ボタン"""
         logging.info("btn_base_stop")
         
         Global.appView.window["btn_base_stop"].update(disabled = True)
@@ -87,6 +94,7 @@ class AppController:
             GraphUtil.stopAllGraph()
     
     def btn_save_raw(self) -> None:
+        """生データ保存ボタン"""
         logging.info("btn_save_raw")
         
         timestr = time.strftime("%Y%m%d-%H%M%S")
@@ -98,6 +106,7 @@ class AppController:
                 sg.popup("保存されました (" + filename + ")")
     
     def btn_load_raw(self) -> None:
+        """生データロードボタン"""
         logging.info("btn_load_raw")
         
         s = sg.popup_get_file("ファイルを選択して下さい")
@@ -133,10 +142,10 @@ class AppController:
         else:
             sg.popup_error("ファイルが存在しません")
     
-    def upper_btn_save(self) -> None:
-        pass
-    
     def btn_reset(self) -> None:
+        """リセットボタン"""
+        logging.info("btn_reset")
+        
         Global.appView.window["btn_connect"].update(disabled = False)
         
         Global.appView.window["btn_save_raw"].update(disabled = True)
@@ -171,5 +180,3 @@ class AppController:
         Global.baseEndTime = 0
         Model.serialData = Model.serialData[0:0]
         Model.bpmData = Model.bpmData[0:0]
-        
-        pass

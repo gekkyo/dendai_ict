@@ -13,7 +13,6 @@ class BaseGraph:
         """
         コンストラクタ
         """
-        
         logging.info("init")
         
         Global.graphArray.append(self)
@@ -21,21 +20,24 @@ class BaseGraph:
         self.ax: axes
         self.interval: typing.Optional[SetInterval] = None
         
-        pass
     
     def initGraph(self) -> None:
+        """グラフ初期化"""
         pass
     
     def start(self) -> None:
+        """スレッド開始"""
         logging.info("start")
         
         self.interval = SetInterval(Global.graphDrawInterval, self.update)
     
     def stop(self) -> None:
+        """スレッド終了"""
         logging.info("stop")
         
         if self.interval is not None:
             self.interval.cancel()
     
     def update(self) -> None:
+        """スレッド処理"""
         pass
