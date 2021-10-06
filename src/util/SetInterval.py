@@ -5,7 +5,6 @@ from typing import Any
 
 
 class SetInterval:
-    
     def __init__(self, interval: float, action: Any) -> None:
         """コンストラクタ
         Args:
@@ -13,23 +12,23 @@ class SetInterval:
             action (Any): 呼ぶ出す関数
         """
         logging.info("init")
-        
+
         self.interval = interval
         self.action = action
         self.stopEvent = threading.Event()
-        thread = threading.Thread(target = self.__setInterval)
+        thread = threading.Thread(target=self.__set_interval)
         thread.start()
-    
-    def __setInterval(self) -> None:
+
+    def __set_interval(self) -> None:
         """スレッド処理"""
-        
-        nextTime = time.time() + self.interval
-        while not self.stopEvent.wait(nextTime - time.time()):
-            nextTime += self.interval
-            t = threading.Thread(target = self.action)
+
+        next_time = time.time() + self.interval
+        while not self.stopEvent.wait(next_time - time.time()):
+            next_time += self.interval
+            t = threading.Thread(target=self.action)
             t.daemon = True
             t.start()
-    
+
     def cancel(self) -> None:
         """スレッドを止める"""
         logging.info("cancel")

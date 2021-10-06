@@ -1,43 +1,38 @@
 import logging
 import typing
 
-from matplotlib.pyplot import axes
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
-from src.util import Global
 from src.util.SetInterval import SetInterval
 
 
 class BaseGraph:
-    
     def __init__(self) -> None:
-        """
-        コンストラクタ
-        """
+        """コンストラクタ"""
         logging.info("init")
-        
-        Global.graphArray.append(self)
-        
-        self.ax: axes
+
+        self.ax: Axes
+        self.fig: Figure
         self.interval: typing.Optional[SetInterval] = None
-        
-    
-    def initGraph(self) -> None:
+
+    def init_graph(self) -> None:
         """グラフ初期化"""
         pass
-    
-    def start(self) -> None:
+
+    def start(self, interval: float) -> None:
         """スレッド開始"""
         logging.info("start")
-        
-        self.interval = SetInterval(Global.graphDrawInterval, self.update)
-    
+
+        self.interval = SetInterval(interval, self.update)
+
     def stop(self) -> None:
         """スレッド終了"""
         logging.info("stop")
-        
+
         if self.interval is not None:
             self.interval.cancel()
-    
+
     def update(self) -> None:
         """スレッド処理"""
         pass

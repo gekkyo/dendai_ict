@@ -1,18 +1,22 @@
-import typing
-
 import pandas as pd
 from pandas import DataFrame
 
 
 class Model:
-    
     # 生データ
-    serialData = pd.DataFrame(columns = ["timecode", "raw", "time", "is_peak", "diff", "bpm"], dtype = "int64").set_index("timecode")
+    serialData = pd.DataFrame(
+        columns=["timecode", "raw", "time", "is_peak", "diff", "bpm"], dtype="int64"
+    ).set_index("timecode")
     # serialData["bpm"] = serialData["bpm"].astype("float64")
-    
+
     # 心拍データ
-    bpmData = pd.DataFrame(columns = ["time", "y"]).set_index("time")
-    
+    bpmData = pd.DataFrame(columns=["time", "y"]).set_index("time")
+
     # 保存用データ
-    baselineSerialData: typing.Optional[DataFrame] = None
-    baselineBpmData: typing.Optional[DataFrame] = None
+    baselineSerialData: DataFrame = serialData.copy()
+    baselineBpmData: DataFrame = bpmData.copy()
+
+    testSerialData: DataFrame = serialData.copy()
+    testBpmData: DataFrame = bpmData.copy()
+
+    ratioData = pd.DataFrame(columns=["time", "y"]).set_index("time")

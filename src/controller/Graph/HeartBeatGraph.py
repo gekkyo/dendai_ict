@@ -10,101 +10,125 @@ from src.util import Global, GraphUtil, SignalUtil
 
 
 class HeartBeatGraph(BaseGraph):
-    
-    def __init__(self, partsname: str) -> None:
+    def __init__(self, parts_name: str) -> None:
         """コンストラクタ
         Args:
-            partsname (str): guiのID
+            parts_name (str): guiのID
         """
         logging.info("init")
-        
+
         super().__init__()
-        
-        self.ax = GraphUtil.init_graph(figsize = (6.4, 2.4), target = Global.appView.window[partsname])
-        self.line, = self.ax.plot([], [], linewidth = 0.5, color = "lightslategray")  # プロット
-        
-        self.ax.set_ylim(0, 1000)
-        self.ax.set_xlim(0, 10)
+        Global.graphArray.append(self)
+
+        self.maxX = 10
+        self.maxY = 200
+
+        self.fig, self.ax = GraphUtil.init_graph(
+            figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
+        )
+        (self.line,) = self.ax.plot([], [], linewidth=0.5, color="lightslategray")  # プロット
+
+        self.ax.set_xlim(0, self.maxX)
+        self.ax.set_ylim(0, self.maxY)
         self.ax.set_xlabel("msec")
         self.ax.set_ylabel("BPM")
         plt.tight_layout()
         self.prevTime = None
         pass
-    
-    def initGraph(self) -> None:
+
+    def init_graph(self) -> None:
         """グラフ初期化"""
-        logging.info("init_garph")
-        
-        self.ax.set_ylim(0, 1000)
-        self.ax.set_xlim(0, 10)
+        logging.info("init_graph")
+
+        self.ax.set_xlim(0, self.maxX)
+        self.ax.set_ylim(0, self.maxY)
         self.line.set_data([], [])
         self.prevTime = None
-    
+
+    def diff_to_bpm(self, x: float) -> int:
+        return max(30, int(1000 / x * 60))
+
     def update(self) -> None:
         """データ処理"""
 
         data = Model.serialData.query("is_peak == 1")
         data = data.tail(30 * Global.sensorPerSecond).copy()
-        
+
         # print(data)
-        
+
         # データが有れば
         if len(data) > 2:
+
+            # 1つ後の時間との差分を計算
             data["diff"] = data["time"].diff(1)
+
+            # 欠損値の補間
             data = data.fillna({"diff": 1000})
-            func = lambda x: max(40, int(1000 / x * 60))
-            data["bpm"] = data["diff"].map(func)
+
+            # bpmに直す
+            data["bpm"] = data["diff"].map(self.diff_to_bpm)
             # print(data)
-            
+
             # print((data.at[data.index[-1], "time"] - data.at[data.index[0], "time"]))
-            
+
             # スプライン曲線
-            num = int((data.at[data.index[-1], "time"] - data.at[data.index[0], "time"]) / Global.splineT)
-            xlist, ylist = SignalUtil.spline1(data["time"].to_list(), data["bpm"].to_list(), num)
-            #
+            num = int(
+                (data.at[data.index[-1], "time"] - data.at[data.index[0], "time"]) / Global.splineT
+            )
+
             # print(num)
-            # print(y)
-            
+
+            x_list, y_list = SignalUtil.spline1(
+                data["time"].to_list(), data["bpm"].to_list(), num - 1
+            )
+
             # BPMグラフ描画
-            self.ax.set_xlim(data["time"].tolist()[-1] - Global.rawGraphSpan, data["time"].tolist()[-1])
-            xArr = list(collections.deque(xlist, int(Global.rawGraphSpan / Global.splineT)))
-            yArr = list(collections.deque(ylist, int(Global.rawGraphSpan / Global.splineT)))
-            self.ax.set_ylim(min(yArr) - 10, max(yArr) + 10)
-            self.line.set_data(xArr, yArr)
-            
-            tmp_df = pd.DataFrame(list(zip(xlist, ylist)), columns = ["time", "y"]).set_index("time")
-            tmp_df.sort_index(inplace = True)
-            #     tmp_df.append(pd.DataFrame(data = {"y": ylist[index]}, index = [xval]))
-            #
-            # Model.bpmData.update(tmp_df)
-            
-            lastTime = 0
+            self.ax.set_xlim(
+                data["time"].tolist()[-1] - Global.rawGraphSpan, data["time"].tolist()[-1]
+            )
+            x_arr = list(collections.deque(x_list, int(Global.rawGraphSpan / Global.splineT)))
+            y_arr = list(collections.deque(y_list, int(Global.rawGraphSpan / Global.splineT)))
+            self.ax.set_ylim(min(y_arr) - 10, max(y_arr) + 10)
+            self.line.set_data(x_arr, y_arr)
+
+            tmp_df = pd.DataFrame(list(zip(x_list, y_list)), columns=["time", "y"]).set_index(
+                "time"
+            )
+            tmp_df.sort_index(inplace=True)
+
+            last_time = 0
             if len(Model.bpmData) > 0:
-                lastTime = Model.bpmData.index.values[-1]
-            append_df = tmp_df.query("time >" + str(lastTime))
-            
+                last_time = Model.bpmData.index.values[-1]
+            append_df = tmp_df.query("time >" + str(last_time))
+
             # print(append_df)
-            
+
             # Model.bpmData = pd.concat(Model.bpmData,append_df)
             if len(append_df) > 0:
                 Model.bpmData = Model.bpmData.append(append_df)
-                Model.bpmData.sort_index(inplace = True)
+                Model.bpmData.sort_index(inplace=True)
                 # print(Model.bpmData.index.duplicated())
                 # 溢れたら古いものから消す
                 Model.serialData = Model.serialData.tail(Global.maxKeepSensorLength)
-            
+                # 表示を更新
+                Global.appView.window["text_hb"].update(str(append_df.tail(1)["y"].values[0]))
+
             # self.prevTime = data.at[-1, "time"]
 
-    def start(self) -> None:
-        """スレッド開始する"""
+    def start(self, interval: float = Global.graphDrawInterval) -> None:
+        """スレッド開始する
+
+        Args:
+            interval(float):呼び出す間隔
+        """
         logging.info("start")
-    
-        self.initGraph()
-    
-        super().start()
+
+        self.init_graph()
+
+        super().start(interval)
 
     def stop(self) -> None:
         """スレッド終了する"""
         logging.info("stop")
-    
+
         super().stop()

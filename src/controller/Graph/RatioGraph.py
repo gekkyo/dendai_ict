@@ -3,38 +3,82 @@ import logging
 from matplotlib import pyplot as plt
 
 from src.controller.Graph.BaseGraph import BaseGraph
+from src.model.Model import Model
 from src.util import Global, GraphUtil
 
 
 class RatioGraph(BaseGraph):
-    
-    def __init__ (self, partsname:str)->None:
+    def __init__(self, parts_name: str) -> None:
         """コンストラクタ
         Args:
-            partsname (str): guiのID
+            parts_name (str): guiのID
         """
-        
+
         logging.info("init")
-        
+
         super().__init__()
-        
-        self.ax = GraphUtil.init_graph(figsize = (6.4, 1.8),
-                                       target = Global.appView.window[partsname])
-        self.line, = self.ax.plot([], [], linewidth = 0.5, color = "lightslategray")  # プロット
-        self.ax.set_ylim(0, 1000)
-        self.ax.set_xlim(0, 10)
+        Global.graphArray.append(self)
+
+        self.maxX = 100
+        self.maxY = 5
+
+        self.fig, self.ax = GraphUtil.init_graph(
+            figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
+        )
+        (self.line,) = self.ax.plot([], [], linewidth=0.5, color="lightslategray")  # プロット
+        self.ax.set_xlim(0, self.maxX)
+        self.ax.set_ylim(0, self.maxY)
         self.ax.set_xlabel("msec")
         self.ax.set_ylabel("RATIO")
         plt.tight_layout()
         pass
-    
-    def initGraph(self)->None:
+
+    def init_graph(self) -> None:
         """グラフ初期化"""
-        logging.info("init_garph")
-        
-        self.ax.set_ylim(0, 1000)
-        self.ax.set_xlim(0, 10)
+        logging.info("init_graph")
+
+        self.ax.set_xlim(0, self.maxX)
+        self.ax.set_ylim(0, self.maxY)
         self.line.set_data([], [])
-    
-    def update (self)->None:
+
+    def update(self) -> None:
+        """データ処理"""
+        data = Model.ratioData.tail(30 * Global.sensorPerSecond).copy()
+
+        # データが有れば
+        if len(data) > 2:
+            # グラフ描画
+            base_ratio = (
+                Global.graph_fft.base_area_measurement[0]
+                / Global.graph_fft.base_area_measurement[1]
+            )
+            # print(base_ratio)
+            x_arr = data.index.values.tolist()
+            y_arr = data["y"].values.tolist()
+            y_arr /= base_ratio
+            self.ax.set_xlim(x_arr[-1] - Global.rawGraphSpan, x_arr[-1])
+            self.ax.set_ylim(min(y_arr), max(y_arr))
+            self.line.set_data(x_arr, y_arr)
+
+            # 溢れたら古いものから消す
+            Model.ratioData = Model.ratioData.tail(Global.maxKeepSensorLength)
+
         pass
+
+    def start(self, interval: float = Global.graphDrawInterval) -> None:
+        """スレッド開始する
+
+        Args:
+            interval(float):呼び出す間隔
+        """
+        logging.info("start")
+
+        self.init_graph()
+
+        super().start(interval)
+
+    def stop(self) -> None:
+        """スレッド終了する"""
+        logging.info("stop")
+
+        super().stop()

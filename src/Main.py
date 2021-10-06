@@ -2,10 +2,7 @@ import logging
 
 import chromalog
 from chromalog.colorizer import GenericColorizer
-from colorama import (
-    Fore,
-    Style,
-    )
+from colorama import Fore, Style
 
 from src.controller.AppController import AppController
 from src.controller.SerialController import SerialController
@@ -15,42 +12,48 @@ from src.view.AppView import AppView
 
 def main() -> None:
     """メイン関数"""
-    
-    colorizer = GenericColorizer(color_map = {
-            'info': (Fore.GREEN, Style.RESET_ALL)
-            })
-    chromalog.basicConfig(level = logging.INFO, colorizer = colorizer, format = '%(asctime)s.%(msecs)03d : %(levelname)s - %(filename)s - %(message)s', datefmt = "%H:%M:%S")
+
+    # ログ設定
+    colorizer = GenericColorizer(color_map={"info": (Fore.GREEN, Style.RESET_ALL)})
+    chromalog.basicConfig(
+        level=logging.INFO,
+        colorizer=colorizer,
+        format="%(asctime)s.%(msecs)03d : %(levelname)s - %(filename)s - %(message)s",
+        datefmt="%H:%M:%S",
+    )
     # logging.basicConfig(level = logging.INFO)
-    logging.info('main')
-    
+    logging.info("main")
+
     # matplotlib初期化
     GraphUtil.init()
-    
+
     # シリアル通信
-    serialController = SerialController()
-    Global.serialController = serialController
-    
+    serial_controller = SerialController()
+    Global.serialController = serial_controller
+
     # GUIビュー
-    appView = AppView()
-    Global.appView = appView
-    
+    app_view = AppView()
+    Global.appView = app_view
+
     # コントローラー
-    appController = AppController()
-    Global.appController = appController
-    
-    # ウインドウ表示
-    appView.show_window()
-    
+    app_controller = AppController()
+    Global.appController = app_controller
+
+    # グラフ用意
+    app_view.prepare_graph()
+    # ポート選択初期化
+    serial_controller.update_port_selection()
+
     # GUI処理待機
     while True:
-        event, values = appView.window.read()
-        appController.handle(event, values)
+        event, values = app_view.window.read()
+        app_controller.handle(event, values)
         if event is None:
             break
-    
+
     # 終了
-    appView.close_window()
+    app_view.close_window()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
