@@ -26,9 +26,9 @@ class RawGraph(BaseGraph):
             figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
         )
 
-        (self.line,) = self.ax.plot([], [], linewidth=0.5, color="lightslategray")
+        (self.line,) = self.ax.plot([], [], linewidth=0.7, color="lightslategray")
         # self.filtered_line, = self.ax.plot([], [], linewidth = 0.5, color="green")
-        self.scatter = self.ax.scatter([], [])
+        self.scatter = self.ax.scatter([], [], zorder=3)
         self.ax.set_xlim(0, self.maxX)
         self.ax.set_ylim(0, self.maxY)
         self.ax.set_xlabel("msec")
@@ -46,10 +46,10 @@ class RawGraph(BaseGraph):
         self.line.set_data([], [])
         self.scatter.set_offsets([[0, 0]])
 
-    def update(self) -> None:
+    def update(self, force: bool = False) -> None:
         """データ処理"""
 
-        data = Model.serialData
+        data = Model.serialData.copy()
 
         # print(data)
 
@@ -60,10 +60,12 @@ class RawGraph(BaseGraph):
             self.ax.set_xlim(
                 data["time"].tolist()[-1] - Global.rawGraphSpan, data["time"].tolist()[-1]
             )
+
             x_arr = list(collections.deque(data["time"].values.tolist(), Global.rawGraphNumSignal))
             y_arr = list(collections.deque(data["raw"].values.tolist(), Global.rawGraphNumSignal))
             self.ax.set_ylim(min(y_arr) - 20, max(y_arr) + 20)
             self.line.set_data(x_arr, y_arr)
+            # self.fig.canvas.draw()
 
             # ピーク描画
             peaks = data.query("is_peak == 1")
@@ -75,6 +77,12 @@ class RawGraph(BaseGraph):
 
             if len(peaks_pos) > 0:
                 self.scatter.set_offsets(peaks_pos)
+
+            if Global.baseStartTime != 0:
+                if Global.baseEndTime == 0:
+                    self.ax.axvspan(Global.baseStartTime, self.ax.get_xlim()[1], color="beige")
+                else:
+                    self.ax.axvspan(Global.baseStartTime, Global.baseEndTime, color="beige")
 
     def start(self, interval: float = Global.graphDrawInterval) -> None:
         """スレッド開始する

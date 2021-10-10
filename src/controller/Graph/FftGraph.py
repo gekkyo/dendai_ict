@@ -1,4 +1,5 @@
 import logging
+from decimal import Decimal
 from typing import Any
 
 import numpy as np
@@ -68,57 +69,80 @@ class FftGraph(BaseGraph):
         """ベースのFFTグラフ作成"""
         logging.info("set_baseline")
 
-        # Model.baselineBpmData.to_csv("../output/beat.csv")
-        print(Model.baselineBpmData)
-        data = (
-            Model.baselineBpmData["y"]
-            .tail(Global.maxFftInterval * Global.splineNumPerSecond)
-            .copy()
-            .tolist()
+        # print(Model.baselineBpmData)
+        # print(Global.maxFftInterval * Global.splineNumPerSecond)
+
+        tail_num: int = int(
+            min(len(Model.baselineBpmData), Global.maxFftInterval * Global.splineNumPerSecond)
         )
 
+        # print(tail_num)
+
+        # data = Model.baselineBpmData.iloc[-tail_num - 1 : -1, 0]
+
+        data = Model.baselineBpmData.tail(tail_num).copy()
+        data = data["y"].tolist()
+        # print(data)
+
+        # print(Model.baselineBpmData.tail(Global.maxFftInterval * Global.splineNumPerSecond))
+
+        #
+        # data = data["y"].tolist()
+        #
+        # print(data)
+        #
         x_list, y_list = self.draw_fft_graph(np.array(data), self.baseline)
-
-        self.base_area_measurement = (sum(y_list[5 : 15 + 1]), sum(y_list[15 : 40 + 1]))
-
-        # print(self.base_area_measurement)
-        # print(self.base_area_measurement[0] / self.base_area_measurement[1])
-
-        # 表示を更新
-        Global.appView.window["text_lf"].update(str(round(self.base_area_measurement[0])))
-        Global.appView.window["text_hf"].update(str(round(self.base_area_measurement[1])))
-        Global.appView.window["text_ratio"].update(
-            str(round(self.base_area_measurement[0] / self.base_area_measurement[1], 3))
+        #
+        self.base_area_measurement = (
+            sum(y_list[5 : 15 + 1] / 100),
+            sum(y_list[15 : 40 + 1] / 100),
         )
+
+        if self.base_area_measurement[1] != 0:
+            cur_ratio = Decimal(self.base_area_measurement[0]) / Decimal(
+                self.base_area_measurement[1]
+            )
+        else:
+            cur_ratio = Decimal(1)
+
+        #
+        # 表示を更新
+        Global.appView.window["text_lf"].update(str(round(self.base_area_measurement[0], 5)))
+        Global.appView.window["text_hf"].update(str(round(self.base_area_measurement[1], 5)))
+        Global.appView.window["text_ratio"].update(str(round(cur_ratio, 5)))
 
     def update(self) -> None:
         """データ処理"""
 
-        data = Model.bpmData.tail(Global.maxFftInterval * 100).copy()
+        tail_num: int = int(
+            min(len(Model.bpmData), Global.maxFftInterval * Global.splineNumPerSecond)
+        )
+        data = Model.bpmData.tail(tail_num).copy()
 
         # データが有れば
         if len(data) > 2:
             self.currentTime = data.tail(1).copy().index.values[0]
 
+            if len(Model.ratioData) > 0 and Model.ratioData.index.values[-1] == self.currentTime:
+                return
+
             np_data = data["y"].tolist()
             x_list, y_list = self.draw_fft_graph(np.array(np_data), self.line)
-            cur_area_measurement = (sum(y_list[5 : 15 + 1]), sum(y_list[15 : 40 + 1]))
+            cur_area_measurement = (sum(y_list[5 : 15 + 1] / 100), sum(y_list[15 : 40 + 1] / 100))
+
+            # print(cur_area_measurement[0])
+            # print(cur_area_measurement[1])
+            if cur_area_measurement[1] != 0:
+                cur_ratio = Decimal(cur_area_measurement[0]) / Decimal(cur_area_measurement[1])
+            else:
+                cur_ratio = Decimal(1)
+            # print(cur_ratio)
 
             # 表示を更新
-            Global.appView.window["text_lf"].update(str(round(cur_area_measurement[0])))
-            Global.appView.window["text_hf"].update(str(round(cur_area_measurement[1])))
-            Global.appView.window["text_ratio"].update(
-                str(round(cur_area_measurement[0] / cur_area_measurement[1], 3))
-            )
-            Global.appView.window["text_sub"].update(
-                str(
-                    round(
-                        self.base_area_measurement[0] / self.base_area_measurement[1]
-                        - cur_area_measurement[0] / cur_area_measurement[1],
-                        3,
-                    )
-                )
-            )
+            Global.appView.window["text_lf"].update(str(round(cur_area_measurement[0], 5)))
+            Global.appView.window["text_hf"].update(str(round(cur_area_measurement[1], 5)))
+
+            Global.appView.window["text_ratio"].update(str(round(cur_ratio, 5)))
 
             # データを追加してゆく
             Model.ratioData = Model.ratioData.append(
@@ -140,26 +164,45 @@ class FftGraph(BaseGraph):
         n = SignalUtil.prev_pow_2(len(data))
         p_data = data[-n:]
 
-        print(n)
+        # print(n)
 
-        # ハミング窓
-        hamming = np.hamming(n)  # type: ignore
+        # ハニング窓
+        # hamming = np.hamming(n)  # type: ignore
+
         # fft
-        # f = np.fft.fft(p_data * hamming)
-        f = MyFFT.my_fft(p_data * hamming)
-        # print(f)
-        # 振幅パワースペクトル
-        amp = np.abs(f) / n
-        freq = np.linspace(0, 1.0 / Global.splineFreq, n)  # 周波数軸
+        f = MyFFT.my_fft(p_data)
+
+        # FFTの複素数結果を絶対に変換
+        f_abs = np.abs(f)
+
+        # 交流成分はデータ数で割って2倍する
+        f_abs_amp = f_abs / n * 2
+
+        # 直流成分は2倍不要
+        f_abs_amp[0] = f_abs_amp[0] / 2
+        f_abs_amp[0] = 0
+
+        # f_abs_amp_std = min_max_normalize(f_abs_amp)
+
+        # 周波数軸
+        freq = np.linspace(0, 1.0 / Global.splineFreq, n)
+
+        # print(freq)
         #
-        # print("amp")
-        # print(amp)
+        # print(len(freq))
         #
-        # 補間
-        x_list, y_list = SignalUtil.spline1(freq, amp, (1.0 / Global.splineFreq) * 100)
+        # print(f_abs_amp_std)
+
+        # 補間(1hzを100個に分割)
+        x_list, y_list = SignalUtil.spline1(
+            freq, f_abs_amp, (freq[-1] - freq[0]) * Global.divideNumPerHz
+        )
+
+        # print(len(x_list))
 
         # グラフ描画
-        self.ax.set_ylim(0, max(y_list))
+        self.ax.set_ylim(min(y_list), max(y_list))
+        # self.ax.set_xlim(min(x_list), max(x_list))
 
         line.set_data(x_list, y_list)
 

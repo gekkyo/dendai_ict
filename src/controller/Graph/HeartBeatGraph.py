@@ -26,14 +26,14 @@ class HeartBeatGraph(BaseGraph):
         self.fig, self.ax = GraphUtil.init_graph(
             figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
         )
-        (self.line,) = self.ax.plot([], [], linewidth=0.5, color="lightslategray")  # プロット
+        (self.line,) = self.ax.plot([], [], linewidth=0.7, color="lightslategray")  # プロット
 
         self.ax.set_xlim(0, self.maxX)
         self.ax.set_ylim(0, self.maxY)
         self.ax.set_xlabel("msec")
         self.ax.set_ylabel("BPM")
         plt.tight_layout()
-        self.prevTime = None
+
         pass
 
     def init_graph(self) -> None:
@@ -43,16 +43,16 @@ class HeartBeatGraph(BaseGraph):
         self.ax.set_xlim(0, self.maxX)
         self.ax.set_ylim(0, self.maxY)
         self.line.set_data([], [])
-        self.prevTime = None
 
     def diff_to_bpm(self, x: float) -> int:
         return max(30, int(1000 / x * 60))
 
-    def update(self) -> None:
+    def update(self, force: bool = False) -> None:
         """データ処理"""
 
         data = Model.serialData.query("is_peak == 1")
-        data = data.tail(30 * Global.sensorPerSecond).copy()
+        tail_num = int(min(len(data), 30 * Global.sensorPerSecond))
+        data = data.tail(tail_num).copy()
 
         # print(data)
 
@@ -67,20 +67,14 @@ class HeartBeatGraph(BaseGraph):
 
             # bpmに直す
             data["bpm"] = data["diff"].map(self.diff_to_bpm)
-            # print(data)
 
-            # print((data.at[data.index[-1], "time"] - data.at[data.index[0], "time"]))
-
-            # スプライン曲線
+            # 時間を10msec間隔にするための分割数
             num = int(
                 (data.at[data.index[-1], "time"] - data.at[data.index[0], "time"]) / Global.splineT
             )
 
-            # print(num)
-
-            x_list, y_list = SignalUtil.spline1(
-                data["time"].to_list(), data["bpm"].to_list(), num - 1
-            )
+            # 補間
+            x_list, y_list = SignalUtil.spline1(data["time"].to_list(), data["bpm"].to_list(), num)
 
             # BPMグラフ描画
             self.ax.set_xlim(
@@ -90,6 +84,12 @@ class HeartBeatGraph(BaseGraph):
             y_arr = list(collections.deque(y_list, int(Global.rawGraphSpan / Global.splineT)))
             self.ax.set_ylim(min(y_arr) - 10, max(y_arr) + 10)
             self.line.set_data(x_arr, y_arr)
+
+            if Global.baseStartTime != 0:
+                if Global.baseEndTime == 0:
+                    self.ax.axvspan(Global.baseStartTime, self.ax.get_xlim()[1], color="beige")
+                else:
+                    self.ax.axvspan(Global.baseStartTime, Global.baseEndTime, color="beige")
 
             tmp_df = pd.DataFrame(list(zip(x_list, y_list)), columns=["time", "y"]).set_index(
                 "time"
@@ -101,19 +101,15 @@ class HeartBeatGraph(BaseGraph):
                 last_time = Model.bpmData.index.values[-1]
             append_df = tmp_df.query("time >" + str(last_time))
 
-            # print(append_df)
-
-            # Model.bpmData = pd.concat(Model.bpmData,append_df)
             if len(append_df) > 0:
+
+                # 追加する
                 Model.bpmData = Model.bpmData.append(append_df)
-                Model.bpmData.sort_index(inplace=True)
-                # print(Model.bpmData.index.duplicated())
                 # 溢れたら古いものから消す
-                Model.serialData = Model.serialData.tail(Global.maxKeepSensorLength)
+                tail_num = int(min(len(Model.bpmData), Global.maxKeepBpmLength))
+                Model.bpmData = Model.bpmData.tail(tail_num).copy()
                 # 表示を更新
                 Global.appView.window["text_hb"].update(str(append_df.tail(1)["y"].values[0]))
-
-            # self.prevTime = data.at[-1, "time"]
 
     def start(self, interval: float = Global.graphDrawInterval) -> None:
         """スレッド開始する

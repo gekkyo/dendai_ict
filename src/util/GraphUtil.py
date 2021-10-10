@@ -1,8 +1,8 @@
 # matplotlib
 import logging
 
-import matplotlib
 import PySimpleGUI as sg
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -30,7 +30,7 @@ def init() -> None:
     # plt.rcParams["figure.autolayout"] = True
 
     # plotを表示させない
-    plt.switch_backend("Agg")
+    # plt.switch_backend("Agg")
     # インタラクティブモード
     plt.ion()
 

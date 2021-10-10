@@ -43,7 +43,8 @@ class RatioGraph(BaseGraph):
 
     def update(self) -> None:
         """データ処理"""
-        data = Model.ratioData.tail(30 * Global.sensorPerSecond).copy()
+        tail_num = int(min(len(Model.ratioData), Global.rawGraphNumSignal))
+        data = Model.ratioData.tail(tail_num).copy()
 
         # データが有れば
         if len(data) > 2:
@@ -57,8 +58,11 @@ class RatioGraph(BaseGraph):
             y_arr = data["y"].values.tolist()
             y_arr /= base_ratio
             self.ax.set_xlim(x_arr[-1] - Global.rawGraphSpan, x_arr[-1])
-            self.ax.set_ylim(min(y_arr), max(y_arr))
+            self.ax.set_ylim(min(y_arr) - 0.1, max(y_arr) + 0.1)
             self.line.set_data(x_arr, y_arr)
+
+            # テキスト更新
+            Global.appView.window["text_sub"].update(str(round(y_arr[-1] / base_ratio, 5)))
 
             # 溢れたら古いものから消す
             Model.ratioData = Model.ratioData.tail(Global.maxKeepSensorLength)

@@ -149,3 +149,6 @@ cython_debug/
 
 /output/
 *.lock
+/src/build/
+/src/dist/
+/settings_file.cfg

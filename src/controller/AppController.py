@@ -3,8 +3,8 @@ import pathlib
 import time
 from typing import Any
 
-import pandas as pd
 import PySimpleGUI as sg
+import pandas as pd
 
 from src.model.Model import Model
 from src.util import Global, GraphUtil
@@ -24,10 +24,10 @@ class AppController:
             values(Any): イベントでの値
         """
         logging.info("AppController:handle")
-        logging.info(event_key)
+        # logging.info(event_key)
 
+        # 外部から値参照するためクラスに保存
         self.values = values
-
         try:
             eval("self." + event_key + "()")
         except Exception:
@@ -61,35 +61,48 @@ class AppController:
         """ベース計測開始ボタン"""
         logging.info("btn_base_start")
 
+        Global.baseStartTime = 0
+        Global.baseEndTime = 0
+        Global.testStartTime = 0
+        Global.testEndTime = 0
+
+        # ボタン
         Global.appView.window["btn_base_start"].update(disabled=True)
         Global.appView.window["btn_base_stop"].update(disabled=False)
 
+        # 開始時間保存
         Global.baseStartTime = Model.serialData.time.values[-1]
+        Global.baseEndTime = 0
 
     def btn_base_stop(self) -> None:
         """ベース計測停止ボタン"""
         logging.info("btn_base_stop")
 
-        Global.appView.window["btn_base_stop"].update(disabled=True)
         Global.baseEndTime = Model.serialData.time.values[-1]
 
         if Global.baseEndTime - Global.baseStartTime < Global.requiredBaseDuration:
             # 時間が足りない
             sg.popup_error("最低" + str(Global.requiredBaseDuration) + "ミリ秒の計測が必要です")
             logging.error("最低" + str(Global.requiredBaseDuration) + "ミリ秒の計測が必要です")
+
+            # ペースラインストップボタン押せるように
             Global.appView.window["btn_base_stop"].update(disabled=False)
             Global.baseEndTime = 0
         else:
             logging.info("ストップ")
-            # 時間足りた
+            # ペースラインストップボタン押せなく
+            Global.appView.window["btn_base_stop"].update(disabled=True)
+            # 本計測スタート押せるように
             Global.appView.window["btn_test_start"].update(disabled=False)
-            # 保存ボタン
+            # 保存ボタン押せるように
             Global.appView.window["btn_save_raw"].update(disabled=False)
             # Global.appView.window["btn_load_test"].update(disabled = False)
+            # 各種グラフ押せるように
             Global.appView.window["btn_save_raw_graph"].update(disabled=False)
             Global.appView.window["btn_save_heart_graph"].update(disabled=False)
             Global.appView.window["btn_save_fft_graph"].update(disabled=False)
 
+            # ベースラインデータ保存
             Model.baselineSerialData = Model.serialData[
                 (Model.serialData["time"] > Global.baseStartTime)
                 & (Model.serialData["time"] < Global.baseEndTime)
@@ -99,8 +112,10 @@ class AppController:
                 & (Model.bpmData.index < Global.baseEndTime)
             ]
 
+            # グラフ止める
             GraphUtil.stop_all_graph()
 
+            # 一度データを初期化
             if len(Model.serialData) > 0:
                 Model.serialData = Model.serialData[0:0]
 
@@ -114,9 +129,16 @@ class AppController:
         """本計測開始ボタン"""
         logging.info("btn_test_start")
 
+        Global.baseStartTime = 0
+        Global.baseEndTime = 0
+        Global.testStartTime = 0
+        Global.testEndTime = 0
+
+        # 本計測スタート押せなくしてストップ押せるように
         Global.appView.window["btn_test_start"].update(disabled=True)
         Global.appView.window["btn_test_stop"].update(disabled=False)
 
+        # 計測開始時間保存
         Global.testStartTime = Model.serialData.time.values[-1]
 
         # グラフ描画開始
@@ -170,11 +192,14 @@ class AppController:
         """生データ保存ボタン"""
         logging.info("btn_save_raw")
 
+        # 生データ
         time_str = time.strftime("%Y%m%d-%H%M%S")
         filename = time_str + "-serial.csv"
         filepath = Global.outDir.joinpath(filename)
         if Model.baselineSerialData is not None:
             Model.baselineSerialData.to_csv(filepath)
+
+        # 心拍データ
         filename = time_str + "-hb.csv"
         filepath = Global.outDir.joinpath(filename)
         if Model.baselineBpmData is not None:
@@ -186,11 +211,17 @@ class AppController:
         """生データロードボタン"""
         logging.info("btn_load_raw")
 
-        s = sg.popup_get_file("ファイルを選択して下さい")
+        if Global.settings["raw_csv"] is None:
+            s = sg.popup_get_file("ファイルを選択して下さい")
+        else:
+            s = sg.popup_get_file("ファイルを選択して下さい", default_path=Global.settings["raw_csv"])
+
         path = pathlib.Path(s)
 
         if path.exists():
             logging.info("ファイル存在する")
+
+            Global.settings["raw_csv"] = str(path.absolute())
 
             # ボタン
             Global.appView.window["btn_base_start"].update(disabled=True)
@@ -211,30 +242,33 @@ class AppController:
             GraphUtil.stop_all_graph()
             GraphUtil.init_all_graph()
 
-            if Global.serialController.open_serial():
-                # 通信開始
-                # ボタン類
-                Global.appView.window["btn_connect"].update(disabled=True)
-                # シリアル通信開始
-                Global.serialController.start()
-
             # データを反映
             Model.serialData = pd.read_csv(path)
+            Global.serialController.check_beat()
+
+            # シリアルデータ
             Model.baselineSerialData = Model.serialData.copy()
-            Global.graph_raw.update()
 
-            Global.graph_hb.update()
+            # グラフを更新
+            Global.graph_raw.update(force=True)
+            Global.graph_hb.update(force=True)
+
+            # HBデータ
             Model.baselineBpmData = Model.bpmData.copy()
-            # Global.graph_hb.update()
 
+            Global.appView.window.refresh()
+
+            # FFTのベースライン計算
+            Global.graph_fft.set_baseline()
+
+            # 一度データを初期化
             if len(Model.serialData) > 0:
                 Model.serialData = Model.serialData[0:0]
 
             if len(Model.bpmData) > 0:
                 Model.bpmData = Model.bpmData[0:0]
 
-            # FFTのベースライン計算
-            Global.graph_fft.set_baseline()
+            # print("end")
 
         else:
             sg.popup_error("ファイルが存在しません")
@@ -348,6 +382,8 @@ class AppController:
 
         Global.baseStartTime = 0
         Global.baseEndTime = 0
+        Global.testStartTime = 0
+        Global.testEndTime = 0
 
         if len(Model.serialData) > 0:
             Model.serialData = Model.serialData[0:0]

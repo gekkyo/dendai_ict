@@ -60,6 +60,13 @@ def spline1(
 
 
 def prev_pow_2(n: int) -> int:
+    """一番近い2のx乗を調べる
+    Args:
+        n(int): 調べる数
+
+    Returns:
+        int:2の乗数
+    """
     if n == 0:
         return 0
     if n == 1:
@@ -68,3 +75,11 @@ def prev_pow_2(n: int) -> int:
     m_f = np.log2(n)
     m_i = np.floor(m_f)
     return int(math.pow(2.0, m_i))
+
+
+def min_max_normalize(arr: npt.NDArray) -> npt.NDArray:
+    return (arr - arr.min(initial=0)) / (arr.max(initial=1) - arr.min(initial=0))
+
+
+def standard_normalize(arr: npt.NDArray) -> npt.NDArray:
+    return (arr - arr.mean()) / arr.std(ddof=1)

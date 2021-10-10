@@ -2,9 +2,9 @@ import logging
 import math
 import typing
 
+import PySimpleGUI as sg
 import numpy as np
 import pandas as pd
-import PySimpleGUI as sg
 import scipy.stats
 import serial
 import serial.tools.list_ports
@@ -24,13 +24,14 @@ class SerialController:
         self.serial: typing.Optional[Serial] = None
         self.ports: list[str] = []
         self.startTime: typing.Optional[int] = None
+        self.isConnected = False
 
         self.get_available_ports()
 
     def initialize(self) -> None:
         """初期化"""
         logging.info("initialize")
-
+        self.isConnected = False
         self.startTime = None
 
     def get_available_ports(self) -> None:
@@ -40,8 +41,8 @@ class SerialController:
         cur_ports: list[str] = []
         ports = serial.tools.list_ports.comports()
 
-        for port, desc in sorted(ports):
-            print("{}: {}".format(port, desc))
+        for port, desc, hwid in sorted(ports):
+            print("{}: {} [{}]".format(port, desc, hwid))
             cur_ports.append(port)
 
         self.ports = cur_ports
@@ -53,14 +54,21 @@ class SerialController:
         """
         logging.info("open_serial")
 
+        if self.isConnected:
+            return True
+
         try:
             if Global.appController.values and Global.appController.values["port_select"]:
                 self.serial = serial.Serial(
                     Global.appController.values["port_select"], 115200, timeout=0
                 )
+                self.isConnected = True
+
+                Global.settings["port"] = Global.appController.values["port_select"]
                 logging.info("SERIAL OPEN")
                 return True
             else:
+                self.isConnected = False
                 logging.error("シリアルポートが選択されていません。")
                 sg.popup_error("シリアルポートが選択されていません。")
                 return False
@@ -68,6 +76,7 @@ class SerialController:
         except SerialException as e:
             sg.popup_error("シリアルポート開放に失敗しました。")
             logging.error(e)
+            self.isConnected = False
             return False
 
     def start(self) -> None:
@@ -77,6 +86,7 @@ class SerialController:
         try:
             self.open_serial()
         except SerialException as e:
+            self.isConnected = False
             logging.error(e)
         else:
             Model.serialData = Model.serialData[0:0]
@@ -96,36 +106,46 @@ class SerialController:
             lines = self.serial.readlines()
         except Exception:
             logging.error("シリアルエラー")
-            return
+        else:
+            for val in lines:
+                val = val.strip().rsplit()
 
-        for val in lines:
-            val = val.strip().rsplit()
+                if len(val) == 2:
 
-            if len(val) == 2:
+                    # 値がおかしいときはスキップ
+                    if len(Model.serialData) > 0:
+                        if int(val[0]) < Model.serialData.index.values[-1]:
+                            continue
+                        # if abs(int(val[0]) - Model.serialData.index.values[-1]) > 1000:
+                        #     continue
+                        if int(val[1]) < 500 or int(val[1]) > 1100:
+                            continue
 
-                # 読み込み開始時刻を保存
-                if self.startTime is None:
-                    self.startTime = int(val[0])
+                    # 読み込み開始時刻を保存
+                    if self.startTime is None:
+                        self.startTime = int(val[0])
 
-                # データを追加してゆく
-                Model.serialData = Model.serialData.append(
-                    pd.DataFrame(
-                        data={"raw": int(val[1]), "time": int(val[0]) - self.startTime},
-                        index=[int(val[0])],
+                    # データを追加してゆく
+                    Model.serialData = Model.serialData.append(
+                        pd.DataFrame(
+                            data={"raw": int(val[1]), "time": int(val[0]) - self.startTime},
+                            index=[int(val[0])],
+                        )
                     )
-                )
 
-                # 溢れたら古いものから消す
-                Model.serialData = Model.serialData.tail(Global.maxKeepSensorLength)
+            # 溢れたら古いものから消す
+            tail_num = int(min(len(Model.serialData), Global.maxKeepSensorLength))
+            Model.serialData = Model.serialData.tail(tail_num).copy()
 
-        # 心拍を調べる
-        self.check_beat()
+            # 心拍を調べる
+            self.check_beat()
 
     def check_beat(self) -> None:
         # 心拍を調べる
         # ラスト数秒間
         if len(Model.serialData) >= Global.numOfSample:
-            sample = Model.serialData.tail(Global.numOfSample).copy()
+            tail_num = int(min(len(Model.serialData), Global.numOfSample))
+            sample = Model.serialData.tail(tail_num).copy()
             # print(len(sample))
 
             # 平均と標準偏差を求める
@@ -177,8 +197,8 @@ class SerialController:
 
         # 開始時
         if values is None:
-            if Global.initialPort in ports:
-                value = Global.initialPort
+            if Global.settings["port"] in ports:
+                value = Global.settings["port"]
 
         # ポート存在するかチェック
         if values and values["port_select"]:

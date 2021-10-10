@@ -16,14 +16,25 @@ if TYPE_CHECKING:
 # 初期ポート
 initialPort = "/dev/cu.usbmodem14301"
 
-# 書き出しディレクトリ
-outDir = pathlib.Path("../output/")
+# ルート階層
+root_path = pathlib.Path("../")
+
+# csv書き出しディレクトリ
+outDir = pathlib.Path(root_path, "output/")
+
+# コンフィグ設定
+settings_file = pathlib.Path(root_path, r"settings_file.cfg")
+settings_default = {"raw_csv": None, "port": initialPort}
+settings: dict = {}
+
+# グラフを止めたか
+isGraphStopped = False
 
 # センサー取得インターバル(sec)
 getSerialInterval = 0.1
 
 # グラフ描画インターバル(sec)
-graphDrawInterval = 0.1
+graphDrawInterval = 0.2
 
 # FFTインターバル(sec)
 graphFftInterval = 0.5
@@ -55,12 +66,16 @@ splineT = 10
 splineFreq = splineT / 1000
 splineNumPerSecond = 1000 / splineT
 
+# 補間値をいくつ保管するか(60sec * 3min * 秒間の個数)
+maxKeepBpmLength = 60 * 3 * splineNumPerSecond
+
+divideNumPerHz = 100
 
 # ベースライン計測に必要な最低時間
 requiredBaseDuration = 1 * 1000
 
 # FFTの範囲(秒)
-maxFftInterval = 15
+maxFftInterval = 41
 
 # ベース計測開始時刻
 baseStartTime = 0

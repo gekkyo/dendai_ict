@@ -1,6 +1,10 @@
 import logging
+from json import dump as json_dump
+from json import load as json_load
+from os import PathLike
 
 import chromalog
+import PySimpleGUI as sg
 from chromalog.colorizer import GenericColorizer
 from colorama import Fore, Style
 
@@ -24,6 +28,8 @@ def main() -> None:
     # logging.basicConfig(level = logging.INFO)
     logging.info("main")
 
+    Global.settings = load_settings(Global.settings_file, Global.settings_default)
+
     # matplotlib初期化
     GraphUtil.init()
 
@@ -46,13 +52,49 @@ def main() -> None:
 
     # GUI処理待機
     while True:
-        event, values = app_view.window.read()
-        app_controller.handle(event, values)
-        if event is None:
+        event, values = app_view.window.read(timeout=10)
+        if event == sg.TIMEOUT_EVENT:
+            continue
+        if event == sg.WIN_CLOSED:
             break
+        app_controller.handle(event, values)
 
     # 終了
+    save_settings(Global.settings_file, Global.settings)
     app_view.close_window()
+
+
+def load_settings(settings_file: PathLike, default_settings: dict) -> dict:
+    """設定ファイルを読み込む
+    Args:
+        settings_file(PathLike):設定ファイルのパス
+        default_settings(dict): デフォルト設定
+
+    Returns:
+        dict:設定
+    """
+    logging.info("load_settings")
+
+    try:
+        with open(settings_file, "r") as f:
+            settings = json_load(f)
+    except Exception:
+        logging.warning("設定ファイル作成")
+        settings = default_settings
+        save_settings(settings_file, settings)
+    return settings
+
+
+def save_settings(settings_file: PathLike, settings: dict) -> None:
+    """設定ファイルを保存
+    Args:
+    settings_file(PathLike):設定ファイルのパス
+    settings(dict): 設定
+    """
+    logging.info("save_settings")
+
+    with open(settings_file, "w") as f:
+        json_dump(settings, f)
 
 
 if __name__ == "__main__":

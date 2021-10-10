@@ -6,6 +6,8 @@ window_style = {
     "finalize": True,
     "grab_anywhere": True,
     "element_justification": "center",
+    "text_justification": "center",
+    "location": (200, 200),
 }
 
 # 外枠
@@ -26,7 +28,7 @@ column_right = {
 }
 
 # グラフ
-fig_style_l = {"size": (640, 480), "pad": ((0, 0), (3, 0))}
+fig_style_l = {"size": (640, 480), "pad": ((0, 0), (1, 0))}
 fig_style_m = {"size": (640, 300), "pad": (0, 0)}
 fig_style_s = {"size": (640, 240), "pad": (0, 0)}
 fig_style_ss = {"size": (640, 180), "pad": (0, 0)}
@@ -65,12 +67,12 @@ column_graph_ss = {
 
 # セットアップ
 port_selection_style = {
-    "font": (None, 10),
-    "size": (26, 2),
+    "font": ("Hiragino Kaku Gothic Pro", 8),
+    "size": (27, 2),
 }
 input_button_style_refresh = {
-    "font": (None, 10),
-    "size": (6, 1),
+    "font": ("Hiragino Kaku Gothic Pro", 8),
+    "size": (7, 1),
     "button_color": ("#ffffff", "#000000"),
     "disabled_button_color": ("#999999", "#cccccc"),
 }
@@ -91,6 +93,7 @@ column_base_frame = {
     # "justification":"center",
     "expand_x": True,
     "expand_y": True,
+    "font": ("Hiragino Kaku Gothic Pro", 10),
 }
 
 column_values = {
@@ -104,15 +107,15 @@ column_values = {
 
 values_text_title_style = {
     "pad": ((1, 1), (5, 0)),
-    "font": (None, 12),
+    "font": ("Hiragino Kaku Gothic Pro", 10),
     "justification": "center",
-    "size": (10, 1),
+    "size": (18, 1),
 }
 values_text_style = {
     "pad": ((1, 1), (0, 5)),
-    "font": (None, 18),
+    "font": ("Hiragino Kaku Gothic Pro", 14),
     "justification": "center",
-    "size": (20, 1),
+    "size": (14, 1),
 }
 
 column_setup = {
@@ -173,44 +176,44 @@ column_button = {
     "justification": "center",
 }
 
-horizontal_line = {"pad": (0, 20), "color": "#eeeeee"}
+horizontal_line = {"pad": (0, 20), "color": "white"}
 
 input_button_style_l = {
     "pad": ((5, 5), (5, 10)),
-    "font": (None, 14),
     "size": (20, 2),
     "button_color": ("#ffffff", "#000000"),
     "disabled_button_color": ("#999999", "#cccccc"),
+    "font": ("Hiragino Kaku Gothic Pro", 11),
 }
 
 input_button_style_reset = {
     "pad": ((5, 5), (5, 10)),
-    "font": (None, 14),
     "size": (20, 2),
     "button_color": ("#ffffff", "#444444"),
     "disabled_button_color": ("#999999", "#cccccc"),
+    "font": ("Hiragino Kaku Gothic Pro", 10),
 }
 
 input_button_style_m = {
-    "pad": ((9, 9), (7, 12)),
-    "font": (None, 14),
+    "pad": ((10, 10), (7, 12)),
     "size": (28, 2),
     "button_color": ("#ffffff", "#000000"),
     "disabled_button_color": ("#999999", "#cccccc"),
+    "font": ("Hiragino Kaku Gothic Pro", 10),
 }
 
 input_button_style_s = {
     "pad": (5, 5),
-    "font": (None, 14),
     "size": (8, 1),
     "button_color": ("#ffffff", "#444444"),
     "disabled_button_color": ("#999999", "#cccccc"),
+    "font": ("Hiragino Kaku Gothic Pro", 10),
 }
 
 input_button_style_sl = {
     "pad": ((0, 0), (5, 10)),
-    "font": (None, 14),
     "size": (18, 1),
     "button_color": ("#ffffff", "#444444"),
     "disabled_button_color": ("#999999", "#cccccc"),
+    "font": ("Hiragino Kaku Gothic Pro", 10),
 }

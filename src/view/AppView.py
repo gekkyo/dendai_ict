@@ -1,8 +1,8 @@
 import logging
 import sys
 
-import matplotlib.pyplot as plt
 import PySimpleGUI as sg
+import matplotlib.pyplot as plt
 from PySimpleGUI import TITLE_LOCATION_TOP
 
 from src.controller.Graph.FftGraph import FftGraph
@@ -32,7 +32,7 @@ from src.view.Style import (
     values_text_style,
     values_text_title_style,
     window_style,
-)
+    )
 
 
 class AppView:
@@ -66,7 +66,7 @@ class AppView:
             [sg.Text(text="0", key="text_hf", **values_text_style)],
             [sg.Text(text="LF/HF比率", key="text_ratio_title", **values_text_title_style)],
             [sg.Text(text="0", key="text_ratio", **values_text_style)],
-            [sg.Text(text="ベースライン比率からの差", key="text_sub_title", **values_text_title_style)],
+            [sg.Text(text="ベースライン比率との比率", key="text_sub_title", **values_text_title_style)],
             [sg.Text(text="0", key="text_sub", **values_text_style)],
         ]
         values_frame = [
