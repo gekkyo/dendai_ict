@@ -1,10 +1,9 @@
 import logging
-from json import dump as json_dump
-from json import load as json_load
+from json import dump as json_dump, load as json_load
 from os import PathLike
 
-import chromalog
 import PySimpleGUI as sg
+import chromalog
 from chromalog.colorizer import GenericColorizer
 from colorama import Fore, Style
 
@@ -88,8 +87,8 @@ def load_settings(settings_file: PathLike, default_settings: dict) -> dict:
 def save_settings(settings_file: PathLike, settings: dict) -> None:
     """設定ファイルを保存
     Args:
-    settings_file(PathLike):設定ファイルのパス
-    settings(dict): 設定
+        settings_file(PathLike):設定ファイルのパス
+        settings(dict): 設定
     """
     logging.info("save_settings")
 

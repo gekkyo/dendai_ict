@@ -5,7 +5,7 @@ import numpy.typing as npt
 def my_fft(x: npt.NDArray) -> npt.NDArray:
     """FFT処理をします
     Args:
-        x:信号の配列
+        x(npt.NDArray):信号の配列
 
     Returns:
         npt.NDArray:FFT結果

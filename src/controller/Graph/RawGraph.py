@@ -50,22 +50,19 @@ class RawGraph(BaseGraph):
         """データ処理"""
 
         data = Model.serialData.copy()
-
         # print(data)
 
         # データが有れば
         if len(data) > 0:
 
             # ECGグラフ描画
+            x_arr = list(collections.deque(data["time"].values.tolist(), Global.rawGraphNumSignal))
+            y_arr = list(collections.deque(data["raw"].values.tolist(), Global.rawGraphNumSignal))
             self.ax.set_xlim(
                 data["time"].tolist()[-1] - Global.rawGraphSpan, data["time"].tolist()[-1]
             )
-
-            x_arr = list(collections.deque(data["time"].values.tolist(), Global.rawGraphNumSignal))
-            y_arr = list(collections.deque(data["raw"].values.tolist(), Global.rawGraphNumSignal))
             self.ax.set_ylim(min(y_arr) - 20, max(y_arr) + 20)
             self.line.set_data(x_arr, y_arr)
-            # self.fig.canvas.draw()
 
             # ピーク描画
             peaks = data.query("is_peak == 1")
@@ -78,6 +75,7 @@ class RawGraph(BaseGraph):
             if len(peaks_pos) > 0:
                 self.scatter.set_offsets(peaks_pos)
 
+            # 計測中の範囲に色を付ける
             if Global.baseStartTime != 0:
                 if Global.baseEndTime == 0:
                     self.ax.axvspan(Global.baseStartTime, self.ax.get_xlim()[1], color="beige")

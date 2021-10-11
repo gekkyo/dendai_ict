@@ -347,16 +347,9 @@ class AppController:
         Global.appView.window["btn_save_raw_graph"].update(disabled=True)
 
         Global.appView.window["btn_save_test"].update(disabled=True)
-        # Global.appView.window["btn_load_test"].update(disabled = True)
 
-        # Global.appView.window["btn_save_heart"].update(disabled = True)
-        # Global.appView.window["btn_load_heart"].update(disabled = False)
         Global.appView.window["btn_save_heart_graph"].update(disabled=True)
-
-        # Global.appView.window["btn_save_fft"].update(disabled = True)
-        # Global.appView.window["btn_load_fft"].update(disabled = False)
         Global.appView.window["btn_save_fft_graph"].update(disabled=True)
-
         Global.appView.window["btn_save_ratio_graph"].update(disabled=True)
 
         Global.appView.window["btn_base_start"].update(disabled=True)

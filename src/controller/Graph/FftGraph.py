@@ -61,38 +61,22 @@ class FftGraph(BaseGraph):
         """ベースライン以外のグラフ初期化"""
         logging.info("reset_main_graph")
 
-        # self.ax.set_ylim(0, self.maxy)
-        # self.ax.set_xlim(0, self.maxHz)
         self.line.set_data([], [])
 
     def set_baseline(self) -> None:
         """ベースのFFTグラフ作成"""
         logging.info("set_baseline")
 
-        # print(Model.baselineBpmData)
-        # print(Global.maxFftInterval * Global.splineNumPerSecond)
-
         tail_num: int = int(
             min(len(Model.baselineBpmData), Global.maxFftInterval * Global.splineNumPerSecond)
         )
-
-        # print(tail_num)
-
-        # data = Model.baselineBpmData.iloc[-tail_num - 1 : -1, 0]
-
         data = Model.baselineBpmData.tail(tail_num).copy()
         data = data["y"].tolist()
-        # print(data)
 
-        # print(Model.baselineBpmData.tail(Global.maxFftInterval * Global.splineNumPerSecond))
-
-        #
-        # data = data["y"].tolist()
-        #
-        # print(data)
-        #
+        # グラフ描画
         x_list, y_list = self.draw_fft_graph(np.array(data), self.baseline)
-        #
+
+        # 面積と比率を計算
         self.base_area_measurement = (
             sum(y_list[5 : 15 + 1] / 100),
             sum(y_list[15 : 40 + 1] / 100),
@@ -105,7 +89,6 @@ class FftGraph(BaseGraph):
         else:
             cur_ratio = Decimal(1)
 
-        #
         # 表示を更新
         Global.appView.window["text_lf"].update(str(round(self.base_area_measurement[0], 5)))
         Global.appView.window["text_hf"].update(str(round(self.base_area_measurement[1], 5)))
@@ -123,25 +106,23 @@ class FftGraph(BaseGraph):
         if len(data) > 2:
             self.currentTime = data.tail(1).copy().index.values[0]
 
+            # 新しい心拍データが無ければ無視
             if len(Model.ratioData) > 0 and Model.ratioData.index.values[-1] == self.currentTime:
                 return
 
+            # グラフ描画・面積・比率計算
             np_data = data["y"].tolist()
             x_list, y_list = self.draw_fft_graph(np.array(np_data), self.line)
             cur_area_measurement = (sum(y_list[5 : 15 + 1] / 100), sum(y_list[15 : 40 + 1] / 100))
 
-            # print(cur_area_measurement[0])
-            # print(cur_area_measurement[1])
             if cur_area_measurement[1] != 0:
                 cur_ratio = Decimal(cur_area_measurement[0]) / Decimal(cur_area_measurement[1])
             else:
                 cur_ratio = Decimal(1)
-            # print(cur_ratio)
 
             # 表示を更新
             Global.appView.window["text_lf"].update(str(round(cur_area_measurement[0], 5)))
             Global.appView.window["text_hf"].update(str(round(cur_area_measurement[1], 5)))
-
             Global.appView.window["text_ratio"].update(str(round(cur_ratio, 5)))
 
             # データを追加してゆく
@@ -160,11 +141,10 @@ class FftGraph(BaseGraph):
         Returns:
             tuple[npt.NDArray, npt.NDArray]:パワースペクトルのx,yのリスト
         """
+
         # 2のべき乗個に揃える
         n = SignalUtil.prev_pow_2(len(data))
         p_data = data[-n:]
-
-        # print(n)
 
         # ハニング窓
         # hamming = np.hamming(n)  # type: ignore
@@ -187,28 +167,17 @@ class FftGraph(BaseGraph):
         # 周波数軸
         freq = np.linspace(0, 1.0 / Global.splineFreq, n)
 
-        # print(freq)
-        #
-        # print(len(freq))
-        #
-        # print(f_abs_amp_std)
-
         # 補間(1hzを100個に分割)
         x_list, y_list = SignalUtil.spline1(
             freq, f_abs_amp, (freq[-1] - freq[0]) * Global.divideNumPerHz
         )
 
-        # print(len(x_list))
-
         # グラフ描画
         self.ax.set_ylim(min(y_list), max(y_list))
         # self.ax.set_xlim(min(x_list), max(x_list))
-
         line.set_data(x_list, y_list)
 
         return x_list, y_list
-
-        # print((1.0 / Global.splineFreq) / n)
 
     def start(self, interval: float = Global.graphFftInterval) -> None:
         """スレッド開始する

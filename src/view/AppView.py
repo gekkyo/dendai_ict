@@ -75,7 +75,7 @@ class AppView:
                     "計測値", title_location=TITLE_LOCATION_TOP, layout=values_layout, **column_values
                 )
             ],
-            [sg.HorizontalSeparator(color="#FEFEFE", pad=(10, 20))],
+            [sg.HorizontalSeparator(color="#FFFFFF", pad=(10, 20))],
         ]
 
         # セットアップ

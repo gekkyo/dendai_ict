@@ -13,7 +13,6 @@ class RatioGraph(BaseGraph):
         Args:
             parts_name (str): guiのID
         """
-
         logging.info("init")
 
         super().__init__()
@@ -43,6 +42,7 @@ class RatioGraph(BaseGraph):
 
     def update(self) -> None:
         """データ処理"""
+
         tail_num = int(min(len(Model.ratioData), Global.rawGraphNumSignal))
         data = Model.ratioData.tail(tail_num).copy()
 
@@ -66,8 +66,6 @@ class RatioGraph(BaseGraph):
 
             # 溢れたら古いものから消す
             Model.ratioData = Model.ratioData.tail(Global.maxKeepSensorLength)
-
-        pass
 
     def start(self, interval: float = Global.graphDrawInterval) -> None:
         """スレッド開始する

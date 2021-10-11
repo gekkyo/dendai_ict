@@ -141,12 +141,13 @@ class SerialController:
             self.check_beat()
 
     def check_beat(self) -> None:
-        # 心拍を調べる
+        """心拍を検知"""
+
         # ラスト数秒間
         if len(Model.serialData) >= Global.numOfSample:
+
             tail_num = int(min(len(Model.serialData), Global.numOfSample))
             sample = Model.serialData.tail(tail_num).copy()
-            # print(len(sample))
 
             # 平均と標準偏差を求める
             ave = scipy.stats.trim_mean(sample["raw"], 0.2)
@@ -175,7 +176,7 @@ class SerialController:
                             sample.at[sample.index[idx], "is_peak"] = 1
                             prev_time = time_values[idx]
 
-            # ピークがローリング間隔より短ければはじめのみ残す
+            # ピーク間の幅がローリング間隔より短ければはじめのみ残す
             peak = sample.query("is_peak==1").copy()
             peak["diff"] = peak["time"].diff(1)
             peak = peak.query("diff <" + str(Global.rollingSpan)).copy()

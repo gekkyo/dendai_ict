@@ -27,9 +27,6 @@ settings_file = pathlib.Path(root_path, r"settings_file.cfg")
 settings_default = {"raw_csv": None, "port": initialPort}
 settings: dict = {}
 
-# グラフを止めたか
-isGraphStopped = False
-
 # センサー取得インターバル(sec)
 getSerialInterval = 0.1
 

@@ -77,20 +77,22 @@ class HeartBeatGraph(BaseGraph):
             x_list, y_list = SignalUtil.spline1(data["time"].to_list(), data["bpm"].to_list(), num)
 
             # BPMグラフ描画
+            x_arr = list(collections.deque(x_list, int(Global.rawGraphSpan / Global.splineT)))
+            y_arr = list(collections.deque(y_list, int(Global.rawGraphSpan / Global.splineT)))
             self.ax.set_xlim(
                 data["time"].tolist()[-1] - Global.rawGraphSpan, data["time"].tolist()[-1]
             )
-            x_arr = list(collections.deque(x_list, int(Global.rawGraphSpan / Global.splineT)))
-            y_arr = list(collections.deque(y_list, int(Global.rawGraphSpan / Global.splineT)))
             self.ax.set_ylim(min(y_arr) - 10, max(y_arr) + 10)
             self.line.set_data(x_arr, y_arr)
 
+            # 計測中の範囲に色を付ける
             if Global.baseStartTime != 0:
                 if Global.baseEndTime == 0:
                     self.ax.axvspan(Global.baseStartTime, self.ax.get_xlim()[1], color="beige")
                 else:
                     self.ax.axvspan(Global.baseStartTime, Global.baseEndTime, color="beige")
 
+            # BPMデータを分離して保存
             tmp_df = pd.DataFrame(list(zip(x_list, y_list)), columns=["time", "y"]).set_index(
                 "time"
             )
