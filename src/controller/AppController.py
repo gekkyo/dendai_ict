@@ -3,8 +3,8 @@ import pathlib
 import time
 from typing import Any
 
-import PySimpleGUI as sg
 import pandas as pd
+import PySimpleGUI as sg
 
 from src.model.Model import Model
 from src.util import Global, GraphUtil
@@ -115,12 +115,12 @@ class AppController:
             # グラフ止める
             GraphUtil.stop_all_graph()
 
-            # 一度データを初期化
-            if len(Model.serialData) > 0:
-                Model.serialData = Model.serialData[0:0]
-
-            if len(Model.bpmData) > 0:
-                Model.bpmData = Model.bpmData[0:0]
+            # # 一度データを初期化
+            # if len(Model.serialData) > 0:
+            #     Model.serialData = Model.serialData[0:0]
+            #
+            # if len(Model.bpmData) > 0:
+            #     Model.bpmData = Model.bpmData[0:0]
 
             # FFTのベースライン計算
             Global.graph_fft.set_baseline()
@@ -299,6 +299,7 @@ class AppController:
             filename = time_str + "-graph-raw.png"
             filepath = Global.outDir.joinpath(filename)
             Global.graph_raw.fig.savefig(filepath, dpi=300)
+            sg.popup("保存されました (" + filename + ")")
         except Exception:
             print("err")
             pass
@@ -311,6 +312,7 @@ class AppController:
             filename = time_str + "-graph-hb.png"
             filepath = Global.outDir.joinpath(filename)
             Global.graph_hb.fig.savefig(filepath, dpi=300)
+            sg.popup("保存されました (" + filename + ")")
         except Exception:
             pass
 
@@ -322,6 +324,7 @@ class AppController:
             filename = time_str + "-graph-fft.png"
             filepath = Global.outDir.joinpath(filename)
             Global.graph_fft.fig.savefig(filepath, dpi=300)
+            sg.popup("保存されました (" + filename + ")")
         except Exception:
             pass
 
@@ -333,6 +336,7 @@ class AppController:
             filename = time_str + "-graph-ratio.png"
             filepath = Global.outDir.joinpath(filename)
             Global.graph_ratio.fig.savefig(filepath, dpi=300)
+            sg.popup("保存されました (" + filename + ")")
         except Exception:
             pass
 
