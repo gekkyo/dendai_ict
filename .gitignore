@@ -157,3 +157,4 @@ cython_debug/
 /poetry.toml
 /.vscode/
 /src/notebook/
+/src/.python-version
