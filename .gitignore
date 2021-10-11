@@ -155,3 +155,4 @@ cython_debug/
 /.editorconfig
 /.python-version
 /poetry.toml
+/.vscode/
