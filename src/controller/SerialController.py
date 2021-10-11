@@ -2,9 +2,9 @@ import logging
 import math
 import typing
 
-import PySimpleGUI as sg
 import numpy as np
 import pandas as pd
+import PySimpleGUI as sg
 import scipy.stats
 import serial
 import serial.tools.list_ports
@@ -60,7 +60,7 @@ class SerialController:
         try:
             if Global.appController.values and Global.appController.values["port_select"]:
                 self.serial = serial.Serial(
-                    Global.appController.values["port_select"], 115200, timeout=0
+                    Global.appController.values["port_select"], 9600, timeout=0
                 )
                 self.isConnected = True
 
