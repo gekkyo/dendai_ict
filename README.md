@@ -95,7 +95,7 @@ PYTHONPATH=./ python3 ./src/Main.py
 
 ### VS Code
 
-PYTHONPATHを通す必要があるため、まず `setting.json` に以下を追加。
+`PYTHONPATH` を通す必要があるため、まず `setting.json` に以下を追加。
 
 ```
 "python.envFile": "${workspaceFolder}/.env"
