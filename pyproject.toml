@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "python"
+name = "dendai_ict"
 version = "0.1.0"
 description = ""
 authors = ["umibe yasushi <umibe@otoso.jp>"]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.10"
+python = ">=3.9.5,<3.10"
 chromalog = "^1.0.5"
 PySimpleGUI = "^4.49.0"
 matplotlib = "^3.4.3"
@@ -15,6 +15,7 @@ scipy = "^1.7.1"
 pyserial = "^3.5"
 statsmodels = "^0.13.0"
 seaborn = "^0.11.2"
+click = "^8.0.3"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.910"

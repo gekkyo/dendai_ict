@@ -1,20 +1,26 @@
 # 2021 情報通信プロジェクト (Group A)
 
-情報通信プロジェクト グループA ポリグラフプロジェクトのレポジトリ。
+情報通信プロジェクト グループA ポリグラフプロジェクトです。
 
 <img alt="GUIスクリーンショット" src="https://user-images.githubusercontent.com/2655028/136725715-44bbc6ae-ea1e-4e80-821c-a9c4fb136bf9.png">
 
-## 制作環境
+## 💻 Environment
 
 #### OS
 
 * MacOS 10.15.7
 
-#### 使用言語
+#### Devices
+
+* Arduino MKR WiFi 1010
+* [心拍センサ](https://pulsesensor.com/)
+
+## 🧰 Prerequisites
+#### Language
 
 * python = ">=3.9,<3.10"
 
-#### ライブラリ
+#### Libraries
 
 * chromalog = "^1.0.5"
 * PySimpleGUI = "^4.49.0"
@@ -26,42 +32,92 @@
 * statsmodels = "^0.13.0"
 * seaborn = "^0.11.2"
 
-## Install Packages
+## 🗂 Folder Structure
+
+```
+.
+│
+├ README.md .............................. 説明
+│
+├ .gitignore
+├ .poetry.toml
+├ .requirements.txt
+├ .setup.cfg ............................. mypy / flake8設定
+│
+├ src
+│ ├ Main.py .............................. メインプログラムファイル
+│ ├ util
+│ │ ├ fft
+│ │ │ ├ MyFFT.py ......................... FFT処理
+│ │ │ 〜
+│ │ ├ Global.py .......................... 各種初期設定
+│ │ ├ GraphUtil.py ....................... グラフ関係ユーティリティ
+│ │ ├ SetInterval.py ..................... スレッド処理ユーティリティ
+│ │ └ SignalUtil.py ...................... 信号処理ユーティリティ
+│ ├ view
+│ │ │ AppView.py ......................... GUI要素
+│ │ └ Style.py ........................... GUIパーツ設定
+│ ├ controller
+│ │ ├ Graph
+│ │ │ ├ RawGraph.py ...................... 元信号グラフ処理
+│ │ │ ├ HeartBeatGraph.py ................ 心拍グラフ処理
+│ │ │ ├ FftGraph.py ...................... FFTグラフ処理
+│ │ │ ├ BaseGraph.py ..................... 比率グラフ処理
+│ │ │ 〜
+│ │ ├ AppController.py ................... メインコントローラ
+│ │ └ SerialController.py ................ シリアル通信処理・ピーク検出
+│ └ model
+│   └ Model.py ........................... 時系列データクラス
+.
+```
+
+## 🔧 Install Dependencies
+
+### poetry
 
 ```
 poetry install
 ```
 
-もしくは
+### pip
 
 ```
 pip install -r requirements.txt
 ```
 
-## ディレクトリ構成
+## 🎯 Launch
+
+### terminal
 
 ```
-.
-│
-├ README.md ............................. 説明
-│
-├ .gitignore
-├ .gitattributes
-│
-├ kadai_01 ................................... 課題01 格納ディレクトリ
-│　│
-│　├ kadai_01.py ............................. プログラムファイル
-│　│
-│　├ kadai_01.md ............................. レポート
-│　│
-│　└ resource ................................ 画像類格納ディレクトリ
-│
-│  〜
-└
-
+PYTHONPATH=./ python3 ./src/Main.py
 ```
 
+### VS Code
 
-### Prerequisites
+PYTHONPATHを通す必要があるため、まず `setting.json` に以下を追加。
 
-What things you need to install the software and how to install them
+```
+"python.envFile": "${workspaceFolder}/.env"
+```
+プロジェクトルートの `.env` ファイルに以下を追加。
+```
+PYTHONPATH=./src:${PYTHONPATH}
+PYTHONPATH=./:${PYTHONPATH}
+```
+VS Codeの設定に以下を設定。(デフォルトではオフになっています)
+```
+"code-runner.runInTerminal": "true"
+```
+プロジェクトルートをワークスペースに追加し、`Main.py` を `Run Code` すれば起動します。
+
+
+
+
+
+## 🙆 Contributors
+
+このプロジェクトは [東京電機大学](https://www.dendai.ac.jp/) 工学部に所属する以下のメンバーで作成しました。
+
+#### 海辺康志(17NC011) / 高橋和希(18EC067) / 高橋凌矢(18EC069) / 山下健太郎(18NC063)
+
