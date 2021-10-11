@@ -152,3 +152,5 @@ cython_debug/
 /src/build/
 /src/dist/
 /settings_file.cfg
+/.editorconfig
+/.python-version
