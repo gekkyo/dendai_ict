@@ -29,8 +29,6 @@
 * pandas = "^1.3.3"
 * scipy = "^1.7.1"
 * pyserial = "^3.5"
-* statsmodels = "^0.13.0"
-* seaborn = "^0.11.2"
 
 ## 🗂 Folder Structure
 
@@ -100,7 +98,7 @@ PYTHONPATH=./ python3 ./src/Main.py
 ```
 "python.envFile": "${workspaceFolder}/.env"
 ```
-プロジェクトルートの `.env` ファイルに以下を追加。
+プロジェクトルートに `.env` ファイルを作成し以下を追加。
 ```
 PYTHONPATH=./src:${PYTHONPATH}
 PYTHONPATH=./:${PYTHONPATH}
