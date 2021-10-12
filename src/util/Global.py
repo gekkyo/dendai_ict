@@ -28,13 +28,13 @@ settings_default = {"raw_csv": None, "port": initialPort}
 settings: dict = {}
 
 # センサー取得インターバル(sec)
-getSerialInterval = 0.1
+getSerialInterval = 0.05
 
 # グラフ描画インターバル(sec)
-graphDrawInterval = 0.2
+graphDrawInterval = 0.3
 
 # FFTインターバル(sec)
-graphFftInterval = 0.5
+graphFftInterval = 0.3
 
 # センサーの取得間隔(msec)
 sensorInterval = 20
@@ -53,10 +53,10 @@ rollingSpan = 300
 rollingWindow = int(rollingSpan / sensorInterval)
 
 # グラフ表示スパン
-rawGraphSpan = 30 * 1000
+rawGraphSpan = 45 * 1000
 
 # グラフ表示内にいくつデータが有るか
-rawGraphNumSignal = 30 * sensorPerSecond
+rawGraphNumSignal = 45 * sensorPerSecond
 
 # スプライン曲線の周期
 splineT = 10
