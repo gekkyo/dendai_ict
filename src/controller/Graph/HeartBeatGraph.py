@@ -23,7 +23,7 @@ class HeartBeatGraph(BaseGraph):
         self.maxX = 10
         self.maxY = 200
 
-        self.fig, self.ax = GraphUtil.init_graph(
+        self.fig, self.ax, self.figAgg = GraphUtil.init_graph(
             figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
         )
         (self.line,) = self.ax.plot([], [], linewidth=0.7, color="lightslategray")  # プロット
@@ -43,6 +43,7 @@ class HeartBeatGraph(BaseGraph):
         self.ax.set_xlim(0, self.maxX)
         self.ax.set_ylim(0, self.maxY)
         self.line.set_data([], [])
+        self.ax.patches.clear()
 
     def diff_to_bpm(self, x: float) -> int:
         return max(30, int(1000 / x * 60))
@@ -88,9 +89,33 @@ class HeartBeatGraph(BaseGraph):
             # 計測中の範囲に色を付ける
             if Global.baseStartTime != 0:
                 if Global.baseEndTime == 0:
-                    self.ax.axvspan(Global.baseStartTime, self.ax.get_xlim()[1], color="beige")
+                    self.ax.axvspan(
+                        max(Global.baseStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        self.ax.get_xlim()[1],
+                        color="beige",
+                    )
                 else:
-                    self.ax.axvspan(Global.baseStartTime, Global.baseEndTime, color="beige")
+                    self.ax.axvspan(
+                        max(Global.baseStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        Global.baseEndTime,
+                        color="beige",
+                    )
+
+            if Global.testStartTime != 0:
+                if Global.testEndTime == 0:
+                    self.ax.axvspan(
+                        max(Global.testStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        self.ax.get_xlim()[1],
+                        color="beige",
+                    )
+                else:
+                    self.ax.axvspan(
+                        max(Global.testStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        Global.testEndTime,
+                        color="beige",
+                    )
+
+            # self.figAgg.flush_events()
 
             # BPMデータを分離して保存
             tmp_df = pd.DataFrame(list(zip(x_list, y_list)), columns=["time", "y"]).set_index(
