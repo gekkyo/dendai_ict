@@ -24,6 +24,8 @@ class BaseGraph:
         """スレッド開始"""
         logging.info("start")
 
+        self.stop()
+
         self.interval = SetInterval(interval, self.update)
 
     def stop(self) -> None:
@@ -32,6 +34,7 @@ class BaseGraph:
 
         if self.interval is not None:
             self.interval.cancel()
+            self.interval = None
 
     def update(self) -> None:
         """スレッド処理"""
