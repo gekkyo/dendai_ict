@@ -28,7 +28,7 @@ class FftGraph(BaseGraph):
         self.maxX = 1
         self.maxY = 20
 
-        self.fig, self.ax = GraphUtil.init_graph(
+        self.fig, self.ax, self.figAgg = GraphUtil.init_graph(
             figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
         )
         (self.baseline,) = self.ax.plot([], [], linewidth=0.3, color="silver")  # プロット
@@ -104,7 +104,7 @@ class FftGraph(BaseGraph):
 
         # データが有れば
         if len(data) > 2:
-            self.currentTime = data.tail(1).copy().index.values[0]
+            self.currentTime = data.tail(1).index.values[0]
 
             # 新しい心拍データが無ければ無視
             if len(Model.ratioData) > 0 and Model.ratioData.index.values[-1] == self.currentTime:
@@ -176,6 +176,24 @@ class FftGraph(BaseGraph):
         self.ax.set_ylim(min(y_list), max(y_list))
         # self.ax.set_xlim(min(x_list), max(x_list))
         line.set_data(x_list, y_list)
+
+        # self.ax.collections.clear()
+        # self.ax.fill_between(
+        #     x_list,
+        #     0,
+        #     y_list,
+        #     where=(0.05 <= x_list) & (x_list <= 0.15),
+        #     facecolor="lightcyan",
+        #     interpolate=True,
+        # )
+        # self.ax.fill_between(
+        #     x_list,
+        #     0,
+        #     y_list,
+        #     where=(0.15 <= x_list) & (x_list <= 0.40),
+        #     facecolor="lavenderblush",
+        #     interpolate=True,
+        # )
 
         return x_list, y_list
 
