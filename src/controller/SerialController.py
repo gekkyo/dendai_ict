@@ -60,7 +60,11 @@ class SerialController:
         try:
             if Global.appController.values and Global.appController.values["port_select"]:
                 self.serial = serial.Serial(
-                    Global.appController.values["port_select"], 9600, timeout=0
+                    Global.appController.values["port_select"],
+                    57600,
+                    timeout=0,
+                    parity=serial.PARITY_EVEN,
+                    rtscts=1,
                 )
                 self.isConnected = True
 
@@ -92,6 +96,8 @@ class SerialController:
             Model.serialData = Model.serialData[0:0]
 
             # 随時シリアルポートのデータを処理
+            if self.interval is not None:
+                self.interval.cancel()
             self.interval = SetInterval(Global.getSerialInterval, self.thread_task)
         pass
 
@@ -104,7 +110,8 @@ class SerialController:
         # 読み込めるだけ読み込む
         try:
             lines = self.serial.readlines()
-        except Exception:
+        except Exception as e:
+            logging.error(str(e))
             logging.error("シリアルエラー")
         else:
             for val in lines:
@@ -221,4 +228,12 @@ class SerialController:
 
         if self.interval is not None:
             self.interval.cancel()
+            self.interval = None
+
         self.startTime = None
+
+        if self.serial and self.serial.is_open:
+            self.serial.close()
+            self.serial = None
+
+        self.isConnected = False
