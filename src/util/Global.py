@@ -72,7 +72,7 @@ divideNumPerHz = 100
 requiredBaseDuration = 1 * 1000
 
 # FFTの範囲(秒)
-maxFftInterval = 82
+maxFftInterval = 42
 
 # ベース計測開始時刻
 baseStartTime = 0
