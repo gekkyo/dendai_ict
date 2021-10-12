@@ -39,10 +39,14 @@ def bandpass(
 
 
 def spline1(
-    x: Union[list[float], npt.NDArray], y: Union[list[float], npt.NDArray], point: float
+    x: Union[list[float], npt.NDArray],
+    y: Union[list[float], npt.NDArray],
+    point: float,
+    kind: str = "linear",
 ) -> tuple[npt.NDArray, npt.NDArray]:
     """スプライン補間関数
     Args:
+        kind: 補間方法
         x: x信号
         y: y信号
         point: 分割数
@@ -52,11 +56,27 @@ def spline1(
     """
     # logging.info("spline")
 
-    f = interpolate.interp1d(x, y, kind="linear")
+    f = interpolate.interp1d(x, y, kind=kind)
 
     result_x = np.linspace(int(x[0]), int(x[-1]), num=int(point), endpoint=True)
     result_y = f(result_x)
     return result_x, result_y
+
+
+def moving_avg(
+    in_x: Union[list[float], npt.NDArray], in_y: Union[list[float], npt.NDArray]
+) -> tuple[npt.NDArray, npt.NDArray]:
+    """移動平均
+    Args:
+        in_x:x信号
+        in_y:y信号
+    Returns:
+        tuple[npt.NDArray,npt.NDArray]: 処理済みのデータ配列
+    """
+    np_y_conv = np.convolve(in_y, np.ones(2) / float(2), mode="same")  # 畳み込む
+    out_x_dat = np.linspace(min(in_x), max(in_x), np.size(np_y_conv))
+
+    return out_x_dat, np_y_conv
 
 
 def prev_pow_2(n: int) -> int:
