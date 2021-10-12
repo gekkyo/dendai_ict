@@ -16,8 +16,8 @@ class SetInterval:
         self.interval = interval
         self.action = action
         self.stopEvent = threading.Event()
-        thread = threading.Thread(target=self.__set_interval)
-        thread.start()
+        self.thread = threading.Thread(target=self.__set_interval)
+        self.thread.start()
 
     def __set_interval(self) -> None:
         """スレッド処理"""
@@ -25,12 +25,10 @@ class SetInterval:
         next_time = time.time() + self.interval
         while not self.stopEvent.wait(next_time - time.time()):
             next_time += self.interval
-            t = threading.Thread(target=self.action)
-            t.daemon = True
-            t.start()
+            self.action()
+            # t.daemon = True
 
     def cancel(self) -> None:
         """スレッドを止める"""
         logging.info("cancel")
-
         self.stopEvent.set()
