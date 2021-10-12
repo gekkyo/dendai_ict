@@ -146,6 +146,8 @@ class FftGraph(BaseGraph):
         n = SignalUtil.prev_pow_2(len(data))
         p_data = data[-n:]
 
+        # print(n)
+
         # ハニング窓
         # hamming = np.hamming(n)  # type: ignore
 
@@ -167,9 +169,11 @@ class FftGraph(BaseGraph):
         # 周波数軸
         freq = np.linspace(0, 1.0 / Global.splineFreq, n)
 
+        x_avg, y_avg = SignalUtil.moving_avg(freq, f_abs_amp)
+
         # 補間(1hzを100個に分割)
         x_list, y_list = SignalUtil.spline1(
-            freq, f_abs_amp, (freq[-1] - freq[0]) * Global.divideNumPerHz
+            x_avg, y_avg, (x_avg[-1] - x_avg[0]) * Global.divideNumPerHz, "cubic"
         )
 
         # グラフ描画
