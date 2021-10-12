@@ -1,9 +1,10 @@
 import logging
-from json import dump as json_dump, load as json_load
+from json import dump as json_dump
+from json import load as json_load
 from os import PathLike
 
-import PySimpleGUI as sg
 import chromalog
+import PySimpleGUI as sg
 from chromalog.colorizer import GenericColorizer
 from colorama import Fore, Style
 
