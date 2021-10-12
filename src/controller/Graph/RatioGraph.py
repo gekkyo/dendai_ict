@@ -21,7 +21,7 @@ class RatioGraph(BaseGraph):
         self.maxX = 100
         self.maxY = 5
 
-        self.fig, self.ax = GraphUtil.init_graph(
+        self.fig, self.ax, self.figAgg = GraphUtil.init_graph(
             figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
         )
         (self.line,) = self.ax.plot([], [], linewidth=0.5, color="lightslategray")  # プロット
@@ -67,7 +67,9 @@ class RatioGraph(BaseGraph):
             # 溢れたら古いものから消す
             Model.ratioData = Model.ratioData.tail(Global.maxKeepSensorLength)
 
-    def start(self, interval: float = Global.graphDrawInterval) -> None:
+            # self.figAgg.flush_events()
+
+    def start(self, interval: float = Global.graphFftInterval) -> None:
         """スレッド開始する
 
         Args:
