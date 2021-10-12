@@ -22,7 +22,7 @@ class RawGraph(BaseGraph):
         self.maxX = 10
         self.maxY = 1000
 
-        self.fig, self.ax = GraphUtil.init_graph(
+        self.fig, self.ax, self.figAgg = GraphUtil.init_graph(
             figsize=(6.4, 4.8), target=Global.appView.window[parts_name]
         )
 
@@ -45,6 +45,7 @@ class RawGraph(BaseGraph):
         self.ax.set_ylim(0, self.maxY)
         self.line.set_data([], [])
         self.scatter.set_offsets([[0, 0]])
+        self.ax.patches.clear()
 
     def update(self, force: bool = False) -> None:
         """データ処理"""
@@ -78,9 +79,33 @@ class RawGraph(BaseGraph):
             # 計測中の範囲に色を付ける
             if Global.baseStartTime != 0:
                 if Global.baseEndTime == 0:
-                    self.ax.axvspan(Global.baseStartTime, self.ax.get_xlim()[1], color="beige")
+                    self.ax.axvspan(
+                        max(Global.baseStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        self.ax.get_xlim()[1],
+                        color="beige",
+                    )
                 else:
-                    self.ax.axvspan(Global.baseStartTime, Global.baseEndTime, color="beige")
+                    self.ax.axvspan(
+                        max(Global.baseStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        Global.baseEndTime,
+                        color="beige",
+                    )
+
+            if Global.testStartTime != 0:
+                if Global.testEndTime == 0:
+                    self.ax.axvspan(
+                        max(Global.testStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        self.ax.get_xlim()[1],
+                        color="beige",
+                    )
+                else:
+                    self.ax.axvspan(
+                        max(Global.testStartTime, data["time"].tolist()[-1] - Global.rawGraphSpan),
+                        Global.testEndTime,
+                        color="beige",
+                    )
+
+            # self.figAgg.flush_events()
 
     def start(self, interval: float = Global.graphDrawInterval) -> None:
         """スレッド開始する
