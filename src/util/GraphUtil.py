@@ -1,8 +1,9 @@
 # matplotlib
 import logging
 
-import PySimpleGUI as sg
 import matplotlib
+import matplotlib.style as mplstyle
+import PySimpleGUI as sg
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -17,6 +18,7 @@ def init() -> None:
 
     # グラフを表示させない
     matplotlib.use("Agg")
+    mplstyle.use("fast")
 
     # グラフの初期設定
     plt.rcParams["font.size"] = 8
@@ -35,7 +37,7 @@ def init() -> None:
     plt.ion()
 
 
-def init_graph(figsize: tuple, target: sg.Canvas) -> tuple[Figure, Axes]:
+def init_graph(figsize: tuple, target: sg.Canvas) -> tuple[Figure, Axes, FigureCanvasTkAgg]:
     """グラフを作成する
     Args:
         figsize(float,float): グラフサイズ
@@ -50,14 +52,11 @@ def init_graph(figsize: tuple, target: sg.Canvas) -> tuple[Figure, Axes]:
     fig: Figure = plt.figure(figsize=figsize)
     ax: Axes = fig.add_subplot(111)
     ax.grid(linewidth=0.4, linestyle="dotted")
-    # ax.set_ylim(ylim[0], ylim[1])
-    # ax.set_xlim(xlim[0], ylim[1])
-    # ax.plot(0, 0, linewidth = 0.5)  # プロット
 
     # figとCanvasを関連付ける．
     tcv = target.TKCanvas
-    draw_fig(tcv, fig)
-    return fig, ax
+    fig_agg = draw_fig(tcv, fig)
+    return fig, ax, fig_agg
 
 
 def draw_fig(cv: sg.Canvas.TKCanvas, fig: Figure) -> FigureCanvasTkAgg:
