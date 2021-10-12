@@ -177,7 +177,7 @@ class SerialController:
                     if (
                         raw_values[idx] == rolling[rolling.index[idx]]
                         and raw_values[idx] > limit
-                        and raw_values[idx] != raw_values[idx + 1]
+                        # and raw_values[idx] != raw_values[idx + 1]
                     ):
                         if time_values[idx] - prev_time > Global.rollingSpan:
                             sample.at[sample.index[idx], "is_peak"] = 1
