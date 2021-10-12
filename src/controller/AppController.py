@@ -47,9 +47,15 @@ class AppController:
             # 通信開始
             # ボタン類
             Global.appView.window["btn_connect"].update(disabled=True)
-            # ベースライン計測できるように
-            Global.appView.window["btn_base_start"].update(disabled=False)
-            Global.appView.window["btn_load_raw"].update(disabled=False)
+
+            # print(len(Model.baselineSerialData))
+
+            if len(Model.baselineSerialData) == 0:
+                # ベースライン計測できるように
+                Global.appView.window["btn_base_start"].update(disabled=False)
+                Global.appView.window["btn_load_raw"].update(disabled=False)
+            else:
+                Global.appView.window["btn_test_start"].update(disabled=False)
 
             # シリアル通信開始
             Global.serialController.start()
@@ -134,9 +140,20 @@ class AppController:
         Global.testStartTime = 0
         Global.testEndTime = 0
 
+        Global.appView.window["btn_save_raw"].update(disabled=True)
+
         # 本計測スタート押せなくしてストップ押せるように
         Global.appView.window["btn_test_start"].update(disabled=True)
         Global.appView.window["btn_test_stop"].update(disabled=False)
+
+        # 計測データ保存できないように
+        Global.appView.window["btn_save_test"].update(disabled=True)
+
+        # グラフ保存できないように
+        Global.appView.window["btn_save_raw_graph"].update(disabled=True)
+        Global.appView.window["btn_save_heart_graph"].update(disabled=True)
+        Global.appView.window["btn_save_fft_graph"].update(disabled=True)
+        Global.appView.window["btn_save_ratio_graph"].update(disabled=True)
 
         # 計測開始時間保存
         Global.testStartTime = Model.serialData.time.values[-1]
@@ -164,8 +181,13 @@ class AppController:
             logging.info("ストップ")
             # 時間足りた
             Global.appView.window["btn_test_start"].update(disabled=False)
-            # 保存ボタン
+            # 計測データボタン
             Global.appView.window["btn_save_test"].update(disabled=False)
+
+            # グラフ保存できるように
+            Global.appView.window["btn_save_raw_graph"].update(disabled=False)
+            Global.appView.window["btn_save_heart_graph"].update(disabled=False)
+            Global.appView.window["btn_save_fft_graph"].update(disabled=False)
             Global.appView.window["btn_save_ratio_graph"].update(disabled=False)
 
             Model.testSerialData = Model.serialData[
@@ -178,15 +200,15 @@ class AppController:
             ]
 
             GraphUtil.stop_all_graph()
-
-            if len(Model.serialData) > 0:
-                Model.serialData = Model.serialData[0:0]
-
-            if len(Model.bpmData) > 0:
-                Model.bpmData = Model.bpmData[0:0]
-
-            if len(Model.ratioData) > 0:
-                Model.ratioData = Model.ratioData[0:0]
+            #
+            # if len(Model.serialData) > 0:
+            #     Model.serialData = Model.serialData[0:0]
+            #
+            # if len(Model.bpmData) > 0:
+            #     Model.bpmData = Model.bpmData[0:0]
+            #
+            # if len(Model.ratioData) > 0:
+            #     Model.ratioData = Model.ratioData[0:0]
 
     def btn_save_raw(self) -> None:
         """生データ保存ボタン"""
@@ -226,21 +248,27 @@ class AppController:
             # ボタン
             Global.appView.window["btn_base_start"].update(disabled=True)
             Global.appView.window["btn_base_stop"].update(disabled=True)
-            Global.appView.window["btn_save_raw"].update(disabled=False)
+            Global.appView.window["btn_save_raw"].update(disabled=True)
+
             Global.appView.window["btn_save_raw_graph"].update(disabled=False)
             Global.appView.window["btn_save_heart_graph"].update(disabled=False)
 
             Global.appView.window["btn_save_test"].update(disabled=True)
             # Global.appView.window["btn_load_test"].update(disabled = False)
 
-            Global.appView.window["btn_save_fft_graph"].update(disabled=True)
+            Global.appView.window["btn_save_fft_graph"].update(disabled=False)
             Global.appView.window["btn_save_ratio_graph"].update(disabled=True)
-            Global.appView.window["btn_test_start"].update(disabled=False)
+            Global.appView.window["btn_test_start"].update(disabled=True)
             Global.appView.window["btn_test_stop"].update(disabled=True)
 
             # すべてのグラフ止める
             GraphUtil.stop_all_graph()
             GraphUtil.init_all_graph()
+
+            Global.baseStartTime = 0
+            Global.baseEndTime = 0
+            Global.testStartTime = 0
+            Global.testEndTime = 0
 
             # データを反映
             Model.serialData = pd.read_csv(path)
@@ -256,8 +284,6 @@ class AppController:
             # HBデータ
             Model.baselineBpmData = Model.bpmData.copy()
 
-            Global.appView.window.refresh()
-
             # FFTのベースライン計算
             Global.graph_fft.set_baseline()
 
@@ -268,7 +294,10 @@ class AppController:
             if len(Model.bpmData) > 0:
                 Model.bpmData = Model.bpmData[0:0]
 
-            # print("end")
+            # シリアル止める
+            Global.appView.window["btn_connect"].update(disabled=False)
+            Global.serialController.stop()
+            Global.serialController.initialize()
 
         else:
             sg.popup_error("ファイルが存在しません")
