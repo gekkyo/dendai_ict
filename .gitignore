@@ -156,5 +156,5 @@ cython_debug/
 /.python-version
 /poetry.toml
 /.vscode/
-/src/notebook/
+#/src/notebook/
 /src/.python-version
