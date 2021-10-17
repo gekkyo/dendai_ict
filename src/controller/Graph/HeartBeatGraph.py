@@ -46,6 +46,13 @@ class HeartBeatGraph(BaseGraph):
         self.ax.patches.clear()
 
     def diff_to_bpm(self, x: float) -> int:
+        """時間の差分をbpmへ変換
+        Args:
+            x(float): 時間の差分
+
+        Returns:
+            int: bpm
+        """
         return max(30, int(1000 / x * 60))
 
     def update(self, force: bool = False) -> None:
