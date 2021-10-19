@@ -44,8 +44,6 @@ class FftGraph(BaseGraph):
 
         plt.tight_layout()
 
-        pass
-
     def init_graph(self) -> None:
         """グラフ初期化"""
         logging.info("init_graph")
