@@ -1,41 +1,9 @@
 import math
-from typing import Iterable, Union
+from typing import Union
 
 import numpy as np
 import numpy.typing as npt
-from scipy import signal
 from scipy.interpolate import interpolate
-
-
-def bandpass(
-    x: Union[npt.NDArray, Iterable, int, float],
-    sample_rate: int,
-    fp: int,
-    fs: int,
-    g_pass: float,
-    g_stop: float,
-) -> npt.NDArray:
-    """バンドパスフィルタ
-    Args:
-        x: 信号
-        sample_rate: サンプリング周波数
-        fp: 通過域端周波数[Hz]※ベクトル
-        fs: 阻止域端周波数[Hz]※ベクトル
-        g_pass: 通過域端最大損失[dB]
-        g_stop: 阻止域端最小損失[dB]
-
-    Returns:
-        npt.NDArray: 処理済みの信号
-    """
-
-    fn = sample_rate / 2  # ナイキスト周波数
-    wp = fp / fn  # ナイキスト周波数で通過域端周波数を正規化
-    ws = fs / fn  # ナイキスト周波数で阻止域端周波数を正規化
-    n, wn = signal.buttord(wp, ws, g_pass, g_stop)  # オーダーとバターワースの正規化周波数を計算
-    # noinspection PyTupleAssignmentBalance
-    b, a = signal.butter(n, wn, btype="band")  # フィルタ伝達関数の分子と分母を計算
-    y = signal.filtfilt(b, a, x)  # 信号に対してフィルタをかける
-    return y  # フィルタ後の信号を返す
 
 
 def spline1(

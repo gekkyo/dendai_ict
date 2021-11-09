@@ -51,7 +51,6 @@ class RawGraph(BaseGraph):
         """データ処理"""
 
         data = Model.serialData.copy()
-        # print(data)
 
         # データが有れば
         if len(data) > 0:

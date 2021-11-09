@@ -37,7 +37,6 @@ class FftGraph(BaseGraph):
         self.ax.set_ylim(0, self.maxY)
         self.ax.set_xlabel("Hz")
         self.ax.set_ylabel("FTT")
-        # self.ax.set_yscale("symlog")
 
         self.base_area_measurement = (0, 0)
         self.currentTime = 0
@@ -76,7 +75,7 @@ class FftGraph(BaseGraph):
 
         # 面積と比率を計算
         self.base_area_measurement = (
-            sum(y_list[5 : 15 + 1] / 100),
+            sum(y_list[4 : 15 + 1] / 100),
             sum(y_list[15 : 40 + 1] / 100),
         )
 
@@ -111,7 +110,7 @@ class FftGraph(BaseGraph):
             # グラフ描画・面積・比率計算
             np_data = data["y"].tolist()
             x_list, y_list = self.draw_fft_graph(np.array(np_data), self.line)
-            cur_area_measurement = (sum(y_list[5 : 15 + 1] / 100), sum(y_list[15 : 40 + 1] / 100))
+            cur_area_measurement = (sum(y_list[4 : 15 + 1] / 100), sum(y_list[15 : 40 + 1] / 100))
 
             if cur_area_measurement[1] != 0:
                 cur_ratio = Decimal(cur_area_measurement[0]) / Decimal(cur_area_measurement[1])
@@ -144,8 +143,6 @@ class FftGraph(BaseGraph):
         n = SignalUtil.prev_pow_2(len(data))
         p_data = data[-n:]
 
-        # print(n)
-
         # ハニング窓
         # hamming = np.hamming(n)  # type: ignore
 
@@ -158,11 +155,8 @@ class FftGraph(BaseGraph):
         # 交流成分はデータ数で割って2倍する
         f_abs_amp = f_abs / n * 2
 
-        # 直流成分は2倍不要
-        f_abs_amp[0] = f_abs_amp[0] / 2
+        # 直流成分は無視
         f_abs_amp[0] = 0
-
-        # f_abs_amp_std = min_max_normalize(f_abs_amp)
 
         # 周波数軸
         freq = np.linspace(0, 1.0 / Global.splineFreq, n)
@@ -178,24 +172,6 @@ class FftGraph(BaseGraph):
         self.ax.set_ylim(min(y_list), max(y_list))
         # self.ax.set_xlim(min(x_list), max(x_list))
         line.set_data(x_list, y_list)
-
-        # self.ax.collections.clear()
-        # self.ax.fill_between(
-        #     x_list,
-        #     0,
-        #     y_list,
-        #     where=(0.05 <= x_list) & (x_list <= 0.15),
-        #     facecolor="lightcyan",
-        #     interpolate=True,
-        # )
-        # self.ax.fill_between(
-        #     x_list,
-        #     0,
-        #     y_list,
-        #     where=(0.15 <= x_list) & (x_list <= 0.40),
-        #     facecolor="lavenderblush",
-        #     interpolate=True,
-        # )
 
         return x_list, y_list
 

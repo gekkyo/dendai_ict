@@ -3,8 +3,8 @@ import pathlib
 import time
 from typing import Any
 
-import pandas as pd
 import PySimpleGUI as sg
+import pandas as pd
 
 from src.model.Model import Model
 from src.util import Global, GraphUtil
@@ -45,10 +45,9 @@ class AppController:
 
         if Global.serialController.open_serial():
             # 通信開始
+
             # ボタン類
             Global.appView.window["btn_connect"].update(disabled=True)
-
-            # print(len(Model.baselineSerialData))
 
             if len(Model.baselineSerialData) == 0:
                 # ベースライン計測できるように
@@ -120,13 +119,6 @@ class AppController:
 
             # グラフ止める
             GraphUtil.stop_all_graph()
-
-            # # 一度データを初期化
-            # if len(Model.serialData) > 0:
-            #     Model.serialData = Model.serialData[0:0]
-            #
-            # if len(Model.bpmData) > 0:
-            #     Model.bpmData = Model.bpmData[0:0]
 
             # FFTのベースライン計算
             Global.graph_fft.set_baseline()
@@ -200,15 +192,6 @@ class AppController:
             ]
 
             GraphUtil.stop_all_graph()
-            #
-            # if len(Model.serialData) > 0:
-            #     Model.serialData = Model.serialData[0:0]
-            #
-            # if len(Model.bpmData) > 0:
-            #     Model.bpmData = Model.bpmData[0:0]
-            #
-            # if len(Model.ratioData) > 0:
-            #     Model.ratioData = Model.ratioData[0:0]
 
     def btn_save_raw(self) -> None:
         """生データ保存ボタン"""
@@ -254,7 +237,6 @@ class AppController:
             Global.appView.window["btn_save_heart_graph"].update(disabled=False)
 
             Global.appView.window["btn_save_test"].update(disabled=True)
-            # Global.appView.window["btn_load_test"].update(disabled = False)
 
             Global.appView.window["btn_save_fft_graph"].update(disabled=False)
             Global.appView.window["btn_save_ratio_graph"].update(disabled=True)

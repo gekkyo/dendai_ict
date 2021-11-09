@@ -67,8 +67,6 @@ class RatioGraph(BaseGraph):
             # 溢れたら古いものから消す
             Model.ratioData = Model.ratioData.tail(Global.maxKeepSensorLength)
 
-            # self.figAgg.flush_events()
-
     def start(self, interval: float = Global.graphFftInterval) -> None:
         """スレッド開始する
 

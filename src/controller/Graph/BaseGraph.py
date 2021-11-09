@@ -25,7 +25,6 @@ class BaseGraph:
         logging.info("start")
 
         self.stop()
-
         self.interval = SetInterval(interval, self.update)
 
     def stop(self) -> None:

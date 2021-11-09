@@ -122,8 +122,6 @@ class HeartBeatGraph(BaseGraph):
                         color="beige",
                     )
 
-            # self.figAgg.flush_events()
-
             # BPMデータを分離して保存
             tmp_df = pd.DataFrame(list(zip(x_list, y_list)), columns=["time", "y"]).set_index(
                 "time"

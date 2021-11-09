@@ -1,9 +1,9 @@
 # matplotlib
 import logging
 
+import PySimpleGUI as sg
 import matplotlib
 import matplotlib.style as mplstyle
-import PySimpleGUI as sg
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -29,10 +29,7 @@ def init() -> None:
     plt.rcParams["ytick.major.width"] = 0.2  # y軸主目盛り線の線幅
     plt.rcParams["xtick.minor.width"] = 0.2  # x軸補助目盛り線の線幅
     plt.rcParams["ytick.minor.width"] = 0.2
-    # plt.rcParams["figure.autolayout"] = True
 
-    # plotを表示させない
-    # plt.switch_backend("Agg")
     # インタラクティブモード
     plt.ion()
 

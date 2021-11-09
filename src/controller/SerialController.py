@@ -2,9 +2,9 @@ import logging
 import math
 import typing
 
+import PySimpleGUI as sg
 import numpy as np
 import pandas as pd
-import PySimpleGUI as sg
 import scipy.stats
 import serial
 import serial.tools.list_ports
@@ -123,8 +123,6 @@ class SerialController:
                     if len(Model.serialData) > 0:
                         if int(val[0]) < Model.serialData.index.values[-1]:
                             continue
-                        # if abs(int(val[0]) - Model.serialData.index.values[-1]) > 1000:
-                        #     continue
                         if int(val[1]) < 500 or int(val[1]) > 1100:
                             continue
 
