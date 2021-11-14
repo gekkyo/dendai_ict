@@ -25,9 +25,9 @@ def main() -> None:
         format="%(asctime)s.%(msecs)03d : %(levelname)s - %(filename)s - %(message)s",
         datefmt="%H:%M:%S",
     )
-    # logging.basicConfig(level = logging.INFO)
     logging.info("main")
 
+    # 設定ファイル読み込み
     Global.settings = load_settings(Global.settings_file, Global.settings_default)
 
     # matplotlib初期化
