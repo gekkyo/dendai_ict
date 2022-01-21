@@ -18,7 +18,7 @@ flake8==3.9.2; (python_version >= "2.7" and python_full_version < "3.0.0") or (p
 future==0.18.2; sys_platform == "win32" and python_version >= "3.6" and python_full_version >= "3.6.0"
 ipykernel==6.4.1; python_version >= "3.7"
 ipython-genutils==0.2.0; python_version >= "3.7"
-ipython==7.28.0; python_version >= "3.7"
+ipython==7.31.1; python_version >= "3.7"
 ipywidgets==7.6.5
 isort==5.9.3; python_full_version >= "3.6.1" and python_version < "4.0"
 jedi==0.18.0; python_version >= "3.7"
